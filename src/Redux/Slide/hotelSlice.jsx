@@ -16,15 +16,15 @@ const hotelSlice = createSlice({
     hotels: [],
     statusHotels: "idle", // "idle", "loading", "succeeded", "failed"
     errorHotels: null,
-    page: 1,
-    pageSize: 10,
-    total: 0,
+    // page: 1,
+    // pageSize: 10,
+    // total: 0,
   },
   reducers: {
-    setPagination: (state, action) => {
-      state.page = action.payload.page;
-      state.pageSize = action.payload.pageSize;
-    },
+    // setPagination: (state, action) => {
+    //   state.page = action.payload.page;
+    //   state.pageSize = action.payload.pageSize;
+    // },
   },
   extraReducers: (builder) => {
     builder

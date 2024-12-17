@@ -3,10 +3,12 @@ import { Tabs } from "antd";
 import HotelPage from "../HotelPage/HotelPage";
 import FlightPage from "../FilghtPage/FlightPage";
 import TourPage from "../TourPage/TourPage";
+import RoomPage from "../RoomPage/Roompage";
 
 const AllProductPage = () => {
   const nameHeader = [
     { name: "Hotel", component: <HotelPage /> },
+    { name: "Room", component: <RoomPage /> },
     { name: "Flight", component: <FlightPage /> },
     { name: "Tour", component: <TourPage /> },
   ];

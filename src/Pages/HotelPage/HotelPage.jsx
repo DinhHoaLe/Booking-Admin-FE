@@ -12,24 +12,32 @@ const HotelPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selected, setSelected] = useState();
   const dispatch = useDispatch();
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+  });
 
-  const { hotels, statusHotels, errorHotels, page, pageSize, total } =
-    useSelector((state) => state.hotels);
+  const { hotels, statusHotels, errorHotels, total } = useSelector(
+    (state) => state.hotels
+  );
 
   useEffect(() => {
-    if (statusHotels === "idle") {
-      dispatch(fetchHotel({ page, pageSize }));
-    }
-  }, [dispatch, statusHotels, page, pageSize]);
+    // Gọi fetchHotel khi `pagination` thay đổi
+    dispatch(
+      fetchHotel({ page: pagination.current, pageSize: pagination.pageSize })
+    );
+  }, [dispatch, pagination]);
 
   if (statusHotels === "loading") return <p>Loading...</p>;
   if (statusHotels === "failed") return <p>Error: {errorHotels}</p>;
 
-  const handleTableChange = (pagination) => {
-    const newPage = pagination.current;
-    const newPageSize = pagination.pageSize;
-
-    dispatch(setPagination({ page: newPage, pageSize: newPageSize }));
+  const handleTableChange = (newPagination) => {
+    const newPage = newPagination.current;
+    const newPageSize = newPagination.pageSize;
+    setPagination({
+      current: newPagination.current,
+      pageSize: newPagination.pageSize,
+    });
     dispatch(fetchHotel({ page: newPage, pageSize: newPageSize }));
   };
 
@@ -133,30 +141,29 @@ const HotelPage = () => {
       ),
     },
     {
-      title: "Available Rooms",
+      title: "Rooms",
       dataIndex: "availableRooms",
       key: "availableRooms",
-      // filters: filtersCategory,
       onFilter: (value, record) => record.availableRooms.indexOf(value) === 0,
       sorter: (a, b) => a.availableRooms.localeCompare(b.availableRooms),
       render: (text, record) => (
         <div style={{ width: 100 }}>{record.availableRooms}</div>
       ),
     },
-    // {
-    //   title: "Image",
-    //   dataIndex: "image",
-    //   key: "image",
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>
-    //       <img
-    //         src={record.imgHotel}
-    //         alt={record.title}
-    //         style={{ width: "100px", height: "100px" }}
-    //       />
-    //     </div>
-    //   ),
-    // },
+    {
+      title: "Avatar",
+      dataIndex: "avatar",
+      key: "avatar",
+      render: (text, record) => (
+        <div style={{ width: 100 }}>
+          <img
+            src={record.imgHotel.avatar}
+            alt={record.title}
+            style={{ width: "100px", height: "100px" }}
+          />
+        </div>
+      ),
+    },
     {
       title: "Price ( $ )",
       dataIndex: "price",
@@ -173,6 +180,13 @@ const HotelPage = () => {
       sorter: (a, b) => a.discount - b.discount,
       render: (text, record) => (
         <div style={{ width: 80 }}>{record.discount}</div>
+      ),
+    },
+    {
+      title: "Country",
+      dataIndex: "country",
+      render: (text, record) => (
+        <div style={{ width: 100 }}>{record.address.country}</div>
       ),
     },
     {
@@ -201,25 +215,6 @@ const HotelPage = () => {
       dataIndex: "street",
       render: (text, record) => (
         <div style={{ width: 100 }}>{record.address.street}</div>
-      ),
-    },
-    {
-      title: "Description",
-      dataIndex: "description",
-      key: "description",
-      render: (text, record) => (
-        <div style={{ width: 200 }}>
-          <p style={truncateStyle}>{record.detailHotel}</p>
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              alert(record.detailHotel);
-            }}
-          >
-            Read more
-          </a>
-        </div>
       ),
     },
     {
@@ -271,8 +266,8 @@ const HotelPage = () => {
           }
         }}
         pagination={{
-          current: page,
-          pageSize: pageSize,
+          current: pagination.current,
+          pageSize: pagination.pageSize,
           total: total,
           showSizeChanger: true,
         }}

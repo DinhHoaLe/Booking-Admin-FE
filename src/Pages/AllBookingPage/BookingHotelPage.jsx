@@ -133,7 +133,7 @@ const BookingHotelPage = () => {
       render: (text, record) => <div>{record._id}</div>,
     },
     {
-      title: "Info Hotel",
+      title: "Hotel Info",
       dataIndex: "hotelName",
       key: "hotelName",
       filters: filtersName,
@@ -167,7 +167,7 @@ const BookingHotelPage = () => {
       ),
     },
     {
-      title: "Info Room",
+      title: "Room Info ",
       dataIndex: "roomName",
       key: "roomName",
       filters: filtersName,
@@ -177,105 +177,148 @@ const BookingHotelPage = () => {
         a.objectId.hotelName.localeCompare(b.objectId.hotelName),
       render: (_, record) => {
         return record.bookedRoomId.map((item2, index) => (
-          <div key={index}>
+          <div key={index} className="w-48">
             <div>
               <span className="font-bold">Name : </span>
               {item2.roomName}
+            </div>
+            <div>
+              <span className="font-bold">Type : </span>
+              {item2.roomType}
+            </div>
+            <div>
+              <span className="font-bold">Price ($) : </span>
+              {item2.pricePerNight}
+            </div>
+            <div>
+              <span className="font-bold">Max Occupancy : </span>
+              {item2.maxOccupancy}
             </div>
           </div>
         ));
       },
     },
     // {
-    //   title: "Available Rooms",
-    //   dataIndex: "availableRooms",
-    //   key: "availableRooms",
-    //   // filters: filtersCategory,
-    //   onFilter: (value, record) => record.availableRooms.indexOf(value) === 0,
-    //   sorter: (a, b) => a.availableRooms.localeCompare(b.availableRooms),
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>{record.availableRooms}</div>
-    //   ),
+    //   title: "Contact Info",
+    //   dataIndex: "roomName",
+    //   key: "roomName",
+    //   filters: filtersName,
+    //   onFilter: (value, record) =>
+    //     record.objectId.hotelName.indexOf(value) === 0,
+    //   sorter: (a, b) =>
+    //     a.objectId.hotelName.localeCompare(b.objectId.hotelName),
+    //   render: (_, record) => {
+    //     return (
+    //       <div>
+    //         <div>
+    //           <span className="font-bold">Email : </span>
+    //           {record.contactInfo.email}
+    //         </div>
+    //         <div>
+    //           <span className="font-bold">Name : </span>
+    //           {record.contactInfo.name}
+    //         </div>
+    //         <div>
+    //           <span className="font-bold">Phone : </span>
+    //           {record.contactInfo.phone}
+    //         </div>
+    //       </div>
+    //     );
+    //   },
     // },
-    // {
-    //   title: "Image",
-    //   dataIndex: "image",
-    //   key: "image",
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>
-    //       <img
-    //         src={record.imgHotel}
-    //         alt={record.title}
-    //         style={{ width: "100px", height: "100px" }}
-    //       />
-    //     </div>
-    //   ),
-    // },
-    // {
-    //   title: "Price ( $ )",
-    //   dataIndex: "price",
-    //   key: "price",
-    //   sorter: (a, b) => a.priceAveragePerNight - b.priceAveragePerNight,
-    //   render: (text, record) => (
-    //     <div style={{ width: 80 }}>{record.priceAveragePerNight}</div>
-    //   ),
-    // },
-    // {
-    //   title: "Discount",
-    //   dataIndex: "discount",
-    //   key: "discount",
-    //   sorter: (a, b) => a.discount - b.discount,
-    //   render: (text, record) => (
-    //     <div style={{ width: 80 }}>{record.discount}</div>
-    //   ),
-    // },
-    // {
-    //   title: "City",
-    //   dataIndex: "city",
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>{record.address.city}</div>
-    //   ),
-    // },
-    // {
-    //   title: "District",
-    //   dataIndex: "district",
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>{record.address.district}</div>
-    //   ),
-    // },
-    // {
-    //   title: "Ward",
-    //   dataIndex: "ward",
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>{record.address.ward}</div>
-    //   ),
-    // },
-    // {
-    //   title: "Street",
-    //   dataIndex: "street",
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>{record.address.street}</div>
-    //   ),
-    // },
-    // {
-    //   title: "Description",
-    //   dataIndex: "description",
-    //   key: "description",
-    //   render: (text, record) => (
-    //     <div style={{ width: 200 }}>
-    //       <p style={truncateStyle}>{record.detailHotel}</p>
-    //       <a
-    //         href="#"
-    //         onClick={(e) => {
-    //           e.preventDefault();
-    //           alert(record.detailHotel);
-    //         }}
-    //       >
-    //         Read more
-    //       </a>
-    //     </div>
-    //   ),
-    // },
+    {
+      title: "User Info",
+      dataIndex: "roomName",
+      key: "roomName",
+      filters: filtersName,
+      onFilter: (value, record) =>
+        record.objectId.hotelName.indexOf(value) === 0,
+      sorter: (a, b) =>
+        a.objectId.hotelName.localeCompare(b.objectId.hotelName),
+      render: (_, record) => {
+        return (
+          <div>
+            <div>
+              <span className="font-bold">Email : </span>
+              {record.userId.email}
+            </div>
+            <div>
+              <span className="font-bold">Name : </span>
+              {record.userId.firstName} {record.userId.lastName}
+            </div>
+            <div>
+              <span className="font-bold">Phone : </span>
+              {record.userId.phone}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      title: "Booking Info",
+      dataIndex: "roomName",
+      key: "roomName",
+      filters: filtersName,
+      onFilter: (value, record) =>
+        record.objectId.hotelName.indexOf(value) === 0,
+      sorter: (a, b) =>
+        a.objectId.hotelName.localeCompare(b.objectId.hotelName),
+      render: (_, record) => {
+        return (
+          <div className="w-60">
+            <div>
+              <span className="font-bold">Persons : </span>
+              {record.totalPersons}
+            </div>
+            <div>
+              <span className="font-bold">Check In : </span>
+              {record.bookingStartDate.slice(0, 10)}
+            </div>
+            <div>
+              <span className="font-bold">Check Out : </span>
+              {record.bookingEndDate.slice(0, 10)}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      title: "Payment Info",
+      dataIndex: "roomName",
+      key: "roomName",
+      filters: filtersName,
+      onFilter: (value, record) =>
+        record.objectId.hotelName.indexOf(value) === 0,
+      sorter: (a, b) =>
+        a.objectId.hotelName.localeCompare(b.objectId.hotelName),
+      render: (_, record) => {
+        return (
+          <div className="w-52">
+            <div>
+              <span className="font-bold"> Payment Method : </span>
+              {record.paymentId.paymentMethod}
+            </div>
+            <div>
+              <span className="font-bold">Price : </span>
+              {record.paymentId.amount}
+            </div>
+            <div>
+              <span className="font-bold">Status : </span>
+              {record.paymentId.status}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      title: "Total Amount ( $ )",
+      dataIndex: "totalAmount",
+      key: "totalAmount",
+      sorter: (a, b) => a.totalAmount - b.totalAmount,
+      render: (text, record) => (
+        <div style={{ width: 150, fontWeight: 700 }}>{record.totalAmount}</div>
+      ),
+    },
     {
       title: "Status",
       key: "status",

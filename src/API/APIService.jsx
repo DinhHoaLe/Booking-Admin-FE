@@ -151,6 +151,52 @@ export const apiPut = async (endpoint, body = {}) => {
   return handleResponse(response);
 };
 
+// Hàm PATCH
+export const apiPatch = async (endpoint, body = {}) => {
+  const response = await fetch(`${BASE_URL}/${endpoint}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  return handleResponse(response);
+};
+
+// Hàm PATCH Formdata
+export const apiPatchFormData = async (endpoint, body = {}) => {
+  const response = await fetch(`${BASE_URL}/${endpoint}`, {
+    method: "PATCH",
+    body: body,
+    credentials: "include",
+  });
+
+  if (response.status === 401) {
+    const refreshResponse = await fetch(`${BASE_URL}/refresh-token-admin`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+
+    if (refreshResponse.ok) {
+      const retryResponse = await fetch(`${BASE_URL}/${endpoint}`, {
+        method: "PATCH",
+        body: body,
+        credentials: "include",
+      });
+
+      if (retryResponse.ok) {
+        return handleResponse(retryResponse);
+      }
+    }
+  }
+
+  return handleResponse(response);
+};
+
 // Hàm DELETE
 export const apiDelete = async (endpoint) => {
   const response = await fetch(`${BASE_URL}/${endpoint}`, {

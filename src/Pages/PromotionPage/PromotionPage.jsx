@@ -1,15 +1,35 @@
 import React, { useEffect, useState } from "react";
-import { Table, Dropdown, Menu, Space } from "antd";
+import { Table, Dropdown, Menu, Space, Select, Form } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import ModalPromotion from "./modalPromotion";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchAllHotel } from "../../Redux/Slide/allHotelSlice";
+import { apiDelete, apiGet } from "../../API/APIService";
+
+const { Option } = Select;
 
 const PromotionPage = () => {
   const [token, setToken] = useState("");
   const [selectedPromotion, setSelectedPromotion] = useState([]);
   const [modal, setModal] = useState(false);
-  const [dataPromotion, setDataPromotion] = useState([]);
+  const [dataPromotion, setFilterRooms] = useState([]);
+
+  const dispatch = useDispatch();
+
+  const { allHotels, statusAllHotels, errorAllHotels } = useSelector(
+    (state) => state.allHotels
+  );
+
+  useEffect(() => {
+    if (statusAllHotels === "idle") {
+      dispatch(fetchAllHotel());
+    }
+  }, [dispatch, statusAllHotels]);
+
+  if (statusAllHotels === "loading") return <p>Loading...</p>;
+  if (statusAllHotels === "failed") return <p>Error: {errorAllHotels}</p>;
 
   const menu = (record) => (
     <Menu>
@@ -22,6 +42,20 @@ const PromotionPage = () => {
       </Menu.Item>
     </Menu>
   );
+
+  const handleRooms = async (value) => {
+    try {
+      const response = await apiGet("get-room-by-hotelId", { hotelId: value });
+
+      if (Array.isArray(response.data)) {
+        setFilterRooms(response.data);
+      } else {
+        setFilterRooms([]);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const columns = [
     {
@@ -137,6 +171,18 @@ const PromotionPage = () => {
 
   return (
     <div>
+      <Form layout="vertical">
+        <Form.Item>
+          <Select onChange={handleRooms} placeholder="Select Hotel">
+            <Option value="">Select Room</Option>
+            {allHotels.map((item, index) => (
+              <Option key={index} value={item._id}>
+                {item.hotelName} - {item._id}
+              </Option>
+            ))}
+          </Select>
+        </Form.Item>
+      </Form>
       <Table
         columns={columns}
         dataSource={dataPromotion}

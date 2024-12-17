@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Tabs } from "antd";
-import BookingHotelPage from "./BookingHotelPage";
-import BookingTourPage from "./BookingTourPage";
-import BookingFlightPage from "./BookingFlightPage";
+import RatingPage from "../RatingPage/RatingPage";
+import ReviewPage from "../ReviewPage/ReviewPage";
 
 const AllReviewPage = () => {
   const nameHeader = [
-    { name: "Hotel", component: <BookingHotelPage /> },
-    { name: "Flight", component: <BookingFlightPage /> },
-    { name: "Tour", component: <BookingTourPage /> },
+    { name: "Review", component: <ReviewPage /> },
+    { name: "Rating", component: <RatingPage /> },
   ];
 
   return (

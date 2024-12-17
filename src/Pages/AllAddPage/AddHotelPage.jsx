@@ -25,13 +25,6 @@ const { Option } = Select;
 
 const listCountries = ["Việt Nam", "Nhật", "Anh", "Mỹ"];
 
-const listOptions = [
-  { label: "Parking", value: "parking" },
-  { label: "Wifi", value: "wifi" },
-  { label: "Bar", value: "bar" },
-  { label: "Restaurant", value: "restaurant" },
-];
-
 const AddHotelPage = () => {
   const navigate = useNavigate();
   const [fileList, setFileList] = useState([]);
@@ -201,11 +194,7 @@ const AddHotelPage = () => {
               name="country"
               rules={[{ required: true, message: "Please input the country!" }]}
             >
-              <Select
-                placeholder="Select Country"
-                value={selectedCity}
-                onChange={handleCityChange}
-              >
+              <Select placeholder="Select Country">
                 {listCountries.map((item, index) => (
                   <Option key={index} value={item}>
                     {item}
@@ -246,7 +235,7 @@ const AddHotelPage = () => {
             >
               <Select
                 placeholder="Select District"
-                value={selectedCity}
+                value={selectedDistrict}
                 onChange={handleDistrictChange}
               >
                 {district.map((item, index) => (
@@ -313,7 +302,7 @@ const AddHotelPage = () => {
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              label="Available Rooms"
+              label="Rooms"
               name="availableRooms"
               rules={[
                 {

@@ -6,6 +6,8 @@ import allHotelReducer from "./Slide/allHotelSlice";
 import addressReducer from "./Slide/addressSlice";
 import flightReducer from "./Slide/flightSlice";
 import bookingReducer from "./Slide/bookingSlice";
+import roomsReducer from "./Slide/roomSlice";
+import reviewsReducer from "./Slide/reviewSlice";
 
 const store = configureStore({
   reducer: {
@@ -16,6 +18,8 @@ const store = configureStore({
     tours: tourReducer,
     allHotels: allHotelReducer,
     booking: bookingReducer,
+    rooms: roomsReducer,
+    reviews: reviewsReducer,
   },
 });
 
