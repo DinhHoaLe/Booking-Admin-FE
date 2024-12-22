@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Table, Modal, Dropdown, Menu, Space } from "antd";
-import ModalProduct from "./ModalHotelPage";
+import { Table, Modal, Dropdown, Menu, Space, Popconfirm } from "antd";
+import ModalProduct from "./ModalFlightPage";
 import { DownOutlined } from "@ant-design/icons";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
@@ -8,11 +8,11 @@ import { useSelector, useDispatch } from "react-redux";
 import { fetchHotel } from "../../Redux/Slide/hotelSlice";
 import { fetchAddress } from "../../Redux/Slide/addressSlice";
 import { fetchFlight } from "../../Redux/Slide/flightSlice";
+import { apiDelete } from "../../API/APIService";
 
 const FlightPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selected, setSelected] = useState();
-  const [dataFlight, setDataFlight] = useState([]);
   const dispatch = useDispatch();
   const { flights, statusFlights, errorFlights } = useSelector(
     (state) => state.flights
@@ -21,8 +21,6 @@ const FlightPage = () => {
   useEffect(() => {
     if (statusFlights === "idle") {
       dispatch(fetchFlight());
-    } else if (statusFlights === "succeeded") {
-      setDataFlight(flights.data);
     }
   }, [dispatch, statusFlights]);
 
@@ -34,21 +32,10 @@ const FlightPage = () => {
     setSelected(product);
   };
 
-  const filtersID = dataFlight.map((item) => ({
-    text: item._id.toString(),
-    value: item._id.toString(),
-  }));
-
-  const filtersName = dataFlight.map((item) => ({
-    text: item.airlineName.toString(),
-    value: item.airlineName.toString(),
-  }));
-
-  // const filtersCategory = [
-  //   { text: "Hotel", value: "hotel" },
-  //   { text: "Resort", value: "resort" },
-  //   { text: "Homestay", value: "homestay" },
-  // ];
+  // const filtersID = flights.map((item) => ({
+  //   text: item._id.toString(),
+  //   value: item._id.toString(),
+  // }));
 
   const filtersStatus = [
     { text: "Available", value: "available" },
@@ -57,14 +44,22 @@ const FlightPage = () => {
     { text: "Pre order", value: "pre_order" },
   ];
 
-  const truncateStyle = {
-    display: "-webkit-box",
-    WebkitLineClamp: 3,
-    WebkitBoxOrient: "vertical",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    maxHeight: "calc(1.2em * 3)",
-    lineHeight: "1.2em",
+  const confirm = async (xxx) => {
+    try {
+      const response = await apiDelete(`delete-flight/${xxx._id}`);
+      toast.success(response.message, {
+        position: "top-center",
+        autoClose: 1000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const menu = (record) => (
@@ -72,9 +67,21 @@ const FlightPage = () => {
       <Menu.Item key="0">
         <button onClick={() => openModal(record)}>Edit</button>
       </Menu.Item>
-      <Menu.Divider />
       <Menu.Item key="1">
-        {/* <button onClick={() => delProduct(record)}>Delete</button> */}
+        <button onClick={() => openModal(record)}>View</button>
+      </Menu.Item>
+      <Menu.Divider />
+      <Menu.Item key="2">
+        <Popconfirm
+          title="Delete the flight"
+          description="Are you sure to delete this flight?"
+          onConfirm={() => confirm(record)}
+          // onCancel={cancel}
+          okText="Yes"
+          cancelText="No"
+        >
+          <button className="text-red-500">Delete</button>
+        </Popconfirm>
       </Menu.Item>
     </Menu>
   );
@@ -84,7 +91,7 @@ const FlightPage = () => {
       title: "ID",
       dataIndex: "id",
       key: "id",
-      filters: filtersID,
+      // filters: filtersID,
       fixed: "left",
       // width: 100,
       onFilter: (value, record) => record.id.toString().indexOf(value) === 0,
@@ -92,15 +99,14 @@ const FlightPage = () => {
       render: (text, record) => <div>{record._id}</div>,
     },
     {
-      title: "Name",
+      title: "Airline Name",
       dataIndex: "airlineName",
       key: "airlineName",
       fixed: "left",
-      filters: filtersName,
       onFilter: (value, record) => record.airlineName.indexOf(value) === 0,
       sorter: (a, b) => a.airlineName.localeCompare(b.airlineName),
       render: (text, record) => (
-        <div style={{ width: 250 }}>{record.airlineName}</div>
+        <div style={{ width: 120 }}>{record.airlineName}</div>
       ),
     },
     {
@@ -120,7 +126,7 @@ const FlightPage = () => {
       onFilter: (value, record) => record.departureDate.indexOf(value) === 0,
       sorter: (a, b) => a.departureDate.localeCompare(b.departureDate),
       render: (text, record) => (
-        <div style={{ width: 100 }}>{record.departureDate.slice(0, 10)}</div>
+        <div style={{ width: 100 }}>{record.departureDate}</div>
       ),
     },
     {
@@ -142,7 +148,7 @@ const FlightPage = () => {
       onFilter: (value, record) => record.destinationDate.indexOf(value) === 0,
       sorter: (a, b) => a.destinationDate.localeCompare(b.destinationDate),
       render: (text, record) => (
-        <div style={{ width: 100 }}>{record.destinationDate.slice(0, 10)}</div>
+        <div style={{ width: 100 }}>{record.destinationDate}</div>
       ),
     },
     {
@@ -193,27 +199,30 @@ const FlightPage = () => {
     <div>
       <Table
         columns={columns}
-        dataSource={dataFlight}
+        dataSource={flights.data}
         rowKey="id"
-        scroll={{ x: true, y: 950 }}
+        // scroll={{ x: true, y: 950 }}
         // style={{ maxWidth: 1080 }}
-        sticky
+        scroll={{ x: true }}
+        sticky={{ offsetHeader: 35 }}
         rowClassName={(record) => {
           switch (record.status) {
             case "available":
               return;
-            case "out_of_stock":
+            case "cancelled":
               return "bg-red-100";
-            case "discontinued":
+            case "completed":
               return "bg-yellow-100";
-            case "pre_order":
+            case "delayed":
               return "bg-gray-100";
             default:
               return "";
           }
         }}
       />
-      {isModalOpen && <ModalProduct openModal={setIsModalOpen} />}
+      {isModalOpen && (
+        <ModalProduct openModal={setIsModalOpen} selected={selected} />
+      )}
       <ToastContainer />
     </div>
   );

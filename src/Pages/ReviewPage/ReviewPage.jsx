@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Table, Modal, Dropdown, Menu, Space } from "antd";
+import { Table, Modal, Dropdown, Menu, Space, Popconfirm } from "antd";
 import ModalReview from "./modatalReview";
 import { DownOutlined } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReview } from "../../Redux/Slide/reviewSlice";
+import { apiDelete } from "../../API/APIService";
 
 const ReviewPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,6 +27,24 @@ const ReviewPage = () => {
     (state) => state.reviews
   );
 
+  const confirm = async (xxx) => {
+    try {
+      const response = await apiDelete(`delete-review/${xxx._id}`);
+      toast.success(response.message, {
+        position: "top-center",
+        autoClose: 1000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     if (statusReviews === "idle") {
       dispatch(fetchReview());
@@ -42,100 +61,88 @@ const ReviewPage = () => {
       </Menu.Item>
       <Menu.Divider />
       <Menu.Item key="1">
-        {/* <button onClick={() => deleteReview(record)}>Delete</button> */}
+        <Popconfirm
+          title="Delete the hotel"
+          description="Are you sure to delete this hotel?"
+          onConfirm={() => confirm(record)}
+          // onCancel={cancel}
+          okText="Yes"
+          cancelText="No"
+        >
+          <button className="text-red-500">Delete</button>
+        </Popconfirm>
       </Menu.Item>
     </Menu>
   );
 
+  // const filtersID = reviews?.data.map((item) => ({
+  //   text: item._id.toString(),
+  //   value: item._id.toString(),
+  // }));
+
+  const filtersType = [
+    { text: "Tour", value: "tour" },
+    { text: "Room", value: "room" },
+    { text: "Hotel", value: "Hotel" },
+    { text: "Flight", value: "Flight" },
+  ];
+
+  const truncateStyle = {
+    display: "-webkit-box",
+    WebkitLineClamp: 3,
+    WebkitBoxOrient: "vertical",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    maxHeight: "calc(1.2em * 3)",
+    lineHeight: "1.2em",
+  };
+
   const columns = [
     {
-      title: "Reviews ID",
-      dataIndex: "_id",
-      key: "_id",
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
+      // filters: filtersID,
       fixed: "left",
-      width: 100,
-      render: (text) => <div>{text}</div>,
+      onFilter: (value, record) => record.id.toString().indexOf(value) === 0,
+      sorter: (a, b) => a.id - b.id,
+      render: (text, record) => <div>{record._id}</div>,
     },
-    // {
-    //   title: "User Email",
-    //   dataIndex: ["userId", "email"],
-    //   key: "email",
-    //   // width: 200,
-    //   render: (text) => <div>{text}</div>,
-    // },
-    // {
-    //   title: "Username",
-    //   dataIndex: ["userId", "username"],
-    //   key: "username",
-    //   // width: 150,
-    //   render: (text) => <div>{text}</div>,
-    // },
-    // {
-    //   title: "Comment",
-    //   dataIndex: "comment",
-    //   key: "comment",
-    //   // width: 250,
-    //   render: (text) => <div>{text}</div>,
-    // },
-    // {
-    //   title: "Rating",
-    //   dataIndex: "rating",
-    //   key: "rating",
-    //   width: 80,
-    //   render: (text) => <div>{text}</div>,
-    // },
-    // {
-    //   title: "Created At",
-    //   dataIndex: "createdAt",
-    //   key: "createdAt",
-    //   // width: 200,
-    //   render: (text) => <div>{new Date(text).toLocaleString()}</div>,
-    // },
-    // {
-    //   title: "Image",
-    //   dataIndex: "image",
-    //   key: "image",
-    //   width: 100,
-    //   render: (text) => (
-    //     <div>
-    //       <img
-    //         src={text}
-    //         alt="User review"
-    //         style={{ width: 100, height: 100 }}
-    //       />
-    //     </div>
-    //   ),
-    // },
-    // {
-    //   title: "Product Title",
-    //   dataIndex: "title",
-    //   key: "title",
-    //   // width: 250,
-    //   render: (text, record) => <div>{record.productId.title}</div>,
-    // },
-    // {
-    //   title: "Admin ID",
-    //   dataIndex: "adminId",
-    //   key: "adminId",
-    //   // width: 250,
-    //   render: (text, record) => <div>{record.reply.adminId}</div>,
-    // },
-    // {
-    //   title: "Text",
-    //   dataIndex: "text",
-    //   key: "text",
-    //   // width: 250,
-    //   render: (text, record) => <div>{record.reply.text}</div>,
-    // },
-    // {
-    //   title: "Status Reply",
-    //   dataIndex: "statusReply",
-    //   key: "statusReply",
-    //   width: 150,
-    //   render: (_, record) => (
-    //     <div>{record.reply.statusReply === true ? "Yes" : "No"}</div>
-    //   ),
-    // },
+    {
+      title: "Type",
+      dataIndex: "objectType",
+      key: "objectType",
+      filters: filtersType,
+      onFilter: (value, record) => record.objectType === value, // Lọc dựa trên giá trị
+      render: (text) => <div style={{ width: "50px" }}>{text}</div>,
+    },
+    {
+      title: "Comment",
+      dataIndex: "Comment",
+      key: "Comment",
+      render: (text, record) => (
+        <div style={{ width: 200 }}>
+          <p style={truncateStyle}>{record.comment}</p>
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              alert(record.comment);
+            }}
+          >
+            Read more
+          </a>
+        </div>
+      ),
+    },
+    {
+      title: "Rating",
+      dataIndex: "rating",
+      key: "rating",
+      width: 80,
+      render: (text) => <div style={{ width: "50px" }}>{text}</div>,
+    },
+
     {
       title: "Status",
       dataIndex: "status",
@@ -167,7 +174,7 @@ const ReviewPage = () => {
         columns={columns}
         dataSource={reviews.data}
         rowKey="_id"
-        scroll={{ x: true, y: 950 }}
+        scroll={{ x: true }}
         sticky
         rowClassName={(record) => {
           switch (record.status) {
@@ -182,14 +189,7 @@ const ReviewPage = () => {
           }
         }}
       />
-      {isModalOpen && (
-        <ModalReview
-          setModal={setModal}
-          selected={selected}
-          token={token}
-          setToken={setToken}
-        />
-      )}
+      {isModalOpen && <ModalReview setModal={setModal} selected={selected} />}
       <ToastContainer />
     </div>
   );

@@ -9,18 +9,19 @@ import {
   resetState,
   fetchBooking,
 } from "../../Redux/Slide/bookingSlice";
+import ModelBookingHotelPage from "./ModelBookingHotelPage.jsx";
 import { apiDelete } from "../../API/APIService";
+import DetailBookingHotelPage from "./DetailBookingHotelPage.jsx";
 
 const BookingHotelPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalDetailOpen, setIsModalDetailOpen] = useState(false);
   const [selected, setSelected] = useState();
   const dispatch = useDispatch();
 
   const { booking, status, error, page, pageSize, total } = useSelector(
     (state) => state.booking.hotel
   );
-
-  console.log(booking);
 
   useEffect(() => {
     if (status === "idle") {
@@ -61,6 +62,11 @@ const BookingHotelPage = () => {
     setSelected(product);
   };
 
+  const openModalDetail = (record) => {
+    const url = `/detail-tour-booking/${record._id}`;
+    window.open(url, "_blank");
+  };
+
   const filtersID = booking.map((item) => ({
     text: item._id.toString(),
     value: item._id.toString(),
@@ -89,17 +95,17 @@ const BookingHotelPage = () => {
 
   const delHotel = async (xxx) => {
     try {
-      const response = await apiDelete(`delete-hotel/${xxx._id}`);
-      toast.success(response, {
-        position: "top-center",
-        autoClose: 1000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
+      // const response = await apiDelete(`delete-hotel/${xxx._id}`);
+      // toast.success(response, {
+      //   position: "top-center",
+      //   autoClose: 1000,
+      //   hideProgressBar: false,
+      //   closeOnClick: true,
+      //   pauseOnHover: true,
+      //   draggable: true,
+      //   progress: undefined,
+      //   theme: "light",
+      // });
     } catch (error) {
       console.log(error);
     }
@@ -111,7 +117,7 @@ const BookingHotelPage = () => {
         <button onClick={() => openModal(record)}>Edit</button>
       </Menu.Item>
       <Menu.Item key="1">
-        <button onClick={() => openModal(record)}>View</button>
+        <button onClick={() => openModalDetail(record)}>View</button>
       </Menu.Item>
       <Menu.Divider />
       <Menu.Item key="2">
@@ -198,34 +204,6 @@ const BookingHotelPage = () => {
         ));
       },
     },
-    // {
-    //   title: "Contact Info",
-    //   dataIndex: "roomName",
-    //   key: "roomName",
-    //   filters: filtersName,
-    //   onFilter: (value, record) =>
-    //     record.objectId.hotelName.indexOf(value) === 0,
-    //   sorter: (a, b) =>
-    //     a.objectId.hotelName.localeCompare(b.objectId.hotelName),
-    //   render: (_, record) => {
-    //     return (
-    //       <div>
-    //         <div>
-    //           <span className="font-bold">Email : </span>
-    //           {record.contactInfo.email}
-    //         </div>
-    //         <div>
-    //           <span className="font-bold">Name : </span>
-    //           {record.contactInfo.name}
-    //         </div>
-    //         <div>
-    //           <span className="font-bold">Phone : </span>
-    //           {record.contactInfo.phone}
-    //         </div>
-    //       </div>
-    //     );
-    //   },
-    // },
     {
       title: "User Info",
       dataIndex: "roomName",
@@ -271,40 +249,16 @@ const BookingHotelPage = () => {
               {record.totalPersons}
             </div>
             <div>
+              <span className="font-bold">Book Date : </span>
+              {record.createdAt.slice(0, 10)}
+            </div>
+            <div>
               <span className="font-bold">Check In : </span>
               {record.bookingStartDate.slice(0, 10)}
             </div>
             <div>
               <span className="font-bold">Check Out : </span>
               {record.bookingEndDate.slice(0, 10)}
-            </div>
-          </div>
-        );
-      },
-    },
-    {
-      title: "Payment Info",
-      dataIndex: "roomName",
-      key: "roomName",
-      filters: filtersName,
-      onFilter: (value, record) =>
-        record.objectId.hotelName.indexOf(value) === 0,
-      sorter: (a, b) =>
-        a.objectId.hotelName.localeCompare(b.objectId.hotelName),
-      render: (_, record) => {
-        return (
-          <div className="w-52">
-            <div>
-              <span className="font-bold"> Payment Method : </span>
-              {record.paymentId.paymentMethod}
-            </div>
-            <div>
-              <span className="font-bold">Price : </span>
-              {record.paymentId.amount}
-            </div>
-            <div>
-              <span className="font-bold">Status : </span>
-              {record.paymentId.status}
             </div>
           </div>
         );
@@ -352,16 +306,19 @@ const BookingHotelPage = () => {
         columns={columns}
         dataSource={booking}
         rowKey="id"
-        scroll={{ x: true, y: 950 }}
+        // scroll={{ x: true, y: 950 }}
         // style={{ maxWidth: 1080 }}
-        sticky
+        scroll={{ x: true }}
+        sticky={{ offsetHeader: 35 }}
         rowClassName={(record) => {
           switch (record.status) {
-            case "active":
-              return;
-            case "inactive":
-              return "bg-red-100";
+            case "confirmed":
+              return "bg-blue-100";
             case "pending":
+              return "bg-gray-100";
+            case "cancelled":
+              return "bg-red-100";
+            case "completed":
               return "bg-yellow-100";
             default:
               return "";
@@ -375,9 +332,15 @@ const BookingHotelPage = () => {
         }}
         onChange={handleTableChange}
       />
-      {/* {isModalOpen && (
-        <ModalProduct openModal={setIsModalOpen} selected={selected} />
-      )} */}
+      {isModalOpen && (
+        <ModelBookingHotelPage openModal={setIsModalOpen} selected={selected} />
+      )}
+      {isModalDetailOpen && (
+        <DetailBookingHotelPage
+          openModal={setIsModalDetailOpen}
+          selected={selected}
+        />
+      )}
       <ToastContainer />
     </div>
   );

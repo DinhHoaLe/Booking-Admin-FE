@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Modal, Dropdown, Menu, Space } from "antd";
+import { Table, Modal, Dropdown, Menu, Space, message, Popconfirm } from "antd";
 import ModalProduct from "./ModalHotelPage";
 import { DownOutlined } from "@ant-design/icons";
 import "react-toastify/dist/ReactToastify.css";
@@ -7,9 +7,11 @@ import { ToastContainer, toast } from "react-toastify";
 import { useSelector, useDispatch } from "react-redux";
 import { setPagination, fetchHotel } from "../../Redux/Slide/hotelSlice";
 import { apiDelete } from "../../API/APIService";
+import ModalReviewHotel from "./ModalReviewHotelPage";
 
 const HotelPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalReviewOpen, setIsModalReviewOpen] = useState(false);
   const [selected, setSelected] = useState();
   const dispatch = useDispatch();
   const [pagination, setPagination] = useState({
@@ -22,7 +24,6 @@ const HotelPage = () => {
   );
 
   useEffect(() => {
-    // Gọi fetchHotel khi `pagination` thay đổi
     dispatch(
       fetchHotel({ page: pagination.current, pageSize: pagination.pageSize })
     );
@@ -46,15 +47,20 @@ const HotelPage = () => {
     setSelected(product);
   };
 
-  const filtersID = hotels.map((item) => ({
-    text: item._id.toString(),
-    value: item._id.toString(),
-  }));
+  const openModalReview = (product) => {
+    setIsModalReviewOpen(true);
+    setSelected(product);
+  };
 
-  const filtersName = hotels.map((item) => ({
-    text: item.hotelName.toString(),
-    value: item.hotelName.toString(),
-  }));
+  // const filtersID = hotels.map((item) => ({
+  //   text: item._id.toString(),
+  //   value: item._id.toString(),
+  // }));
+
+  // const filtersName = hotels.map((item) => ({
+  //   text: item.hotelName.toString(),
+  //   value: item.hotelName.toString(),
+  // }));
 
   const filtersCategory = [
     { text: "Hotel", value: "hotel" },
@@ -72,10 +78,10 @@ const HotelPage = () => {
     lineHeight: "1.2em",
   };
 
-  const delHotel = async (xxx) => {
+  const confirm = async (xxx) => {
     try {
       const response = await apiDelete(`delete-hotel/${xxx._id}`);
-      toast.success(response, {
+      toast.success(response.message, {
         position: "top-center",
         autoClose: 1000,
         hideProgressBar: false,
@@ -96,11 +102,20 @@ const HotelPage = () => {
         <button onClick={() => openModal(record)}>Edit</button>
       </Menu.Item>
       <Menu.Item key="1">
-        <button onClick={() => openModal(record)}>View</button>
+        <button onClick={() => openModalReview(record)}>Review</button>
       </Menu.Item>
       <Menu.Divider />
       <Menu.Item key="2">
-        <button onClick={() => delHotel(record)}>Delete</button>
+        <Popconfirm
+          title="Delete the hotel"
+          description="Are you sure to delete this hotel?"
+          onConfirm={() => confirm(record)}
+          // onCancel={cancel}
+          okText="Yes"
+          cancelText="No"
+        >
+          <button className="text-red-500">Delete</button>
+        </Popconfirm>
       </Menu.Item>
     </Menu>
   );
@@ -110,9 +125,8 @@ const HotelPage = () => {
       title: "ID",
       dataIndex: "id",
       key: "id",
-      filters: filtersID,
+      // filters: filtersID,
       fixed: "left",
-      // width: 100,
       onFilter: (value, record) => record.id.toString().indexOf(value) === 0,
       sorter: (a, b) => a.id - b.id,
       render: (text, record) => <div>{record._id}</div>,
@@ -122,7 +136,8 @@ const HotelPage = () => {
       dataIndex: "hotelName",
       key: "hotelName",
       fixed: "left",
-      filters: filtersName,
+      // filters: filtersName,
+      width: 200,
       onFilter: (value, record) => record.hotelName.indexOf(value) === 0,
       sorter: (a, b) => a.hotelName.localeCompare(b.hotelName),
       render: (text, record) => (
@@ -134,6 +149,7 @@ const HotelPage = () => {
       dataIndex: "category",
       key: "category",
       filters: filtersCategory,
+      width: 100,
       onFilter: (value, record) => record.category.indexOf(value) === 0,
       sorter: (a, b) => a.category.localeCompare(b.category),
       render: (text, record) => (
@@ -144,6 +160,7 @@ const HotelPage = () => {
       title: "Rooms",
       dataIndex: "availableRooms",
       key: "availableRooms",
+      width: 100,
       onFilter: (value, record) => record.availableRooms.indexOf(value) === 0,
       sorter: (a, b) => a.availableRooms.localeCompare(b.availableRooms),
       render: (text, record) => (
@@ -154,8 +171,9 @@ const HotelPage = () => {
       title: "Avatar",
       dataIndex: "avatar",
       key: "avatar",
+      width: 120,
       render: (text, record) => (
-        <div style={{ width: 100 }}>
+        <div style={{ width: 120 }}>
           <img
             src={record.imgHotel.avatar}
             alt={record.title}
@@ -170,7 +188,7 @@ const HotelPage = () => {
       key: "price",
       sorter: (a, b) => a.priceAveragePerNight - b.priceAveragePerNight,
       render: (text, record) => (
-        <div style={{ width: 80 }}>{record.priceAveragePerNight}</div>
+        <div style={{ width: 120 }}>{record.priceAveragePerNight}</div>
       ),
     },
     {
@@ -179,42 +197,67 @@ const HotelPage = () => {
       key: "discount",
       sorter: (a, b) => a.discount - b.discount,
       render: (text, record) => (
-        <div style={{ width: 80 }}>{record.discount}</div>
+        <div style={{ width: 100 }}>{record.discount}</div>
       ),
     },
     {
       title: "Country",
       dataIndex: "country",
       render: (text, record) => (
-        <div style={{ width: 100 }}>{record.address.country}</div>
+        <div style={{ width: 200 }}>{record.address.country}</div>
       ),
     },
     {
       title: "City",
       dataIndex: "city",
       render: (text, record) => (
-        <div style={{ width: 100 }}>{record.address.city}</div>
+        <div style={{ width: 150 }}>{record.address.city}</div>
       ),
     },
     {
       title: "District",
       dataIndex: "district",
       render: (text, record) => (
-        <div style={{ width: 100 }}>{record.address.district}</div>
+        <div style={{ width: 150 }}>{record.address.district}</div>
       ),
     },
     {
       title: "Ward",
       dataIndex: "ward",
       render: (text, record) => (
-        <div style={{ width: 100 }}>{record.address.ward}</div>
+        <div style={{ width: 150 }}>{record.address.ward}</div>
       ),
     },
     {
       title: "Street",
       dataIndex: "street",
       render: (text, record) => (
-        <div style={{ width: 100 }}>{record.address.street}</div>
+        <div style={{ width: 150 }}>{record.address.street}</div>
+      ),
+    },
+    {
+      title: "Rating",
+      dataIndex: "rating",
+      render: (text, record) => {
+        const { totalRating, count } = record.reviewId.reduce(
+          (acc, item) => {
+            acc.totalRating += parseInt(item.rating, 10) || 0;
+            acc.count += 1;
+            return acc;
+          },
+          { totalRating: 0, count: 0 }
+        );
+
+        const averageRating = count > 0 ? (totalRating / count).toFixed(2) : 0;
+
+        return <div style={{ width: 150 }}>{averageRating}</div>;
+      },
+    },
+    {
+      title: "Review",
+      dataIndex: "Review",
+      render: (text, record) => (
+        <div style={{ width: 150 }}>{record.reviewId.length}</div>
       ),
     },
     {
@@ -250,9 +293,10 @@ const HotelPage = () => {
         columns={columns}
         dataSource={hotels}
         rowKey="id"
-        scroll={{ x: true, y: 950 }}
+        scroll={{ x: true }}
+        // scroll={{ x: true, y: 950 }}
         // style={{ maxWidth: 1080 }}
-        sticky
+        sticky={{ offsetHeader: 35 }} // Kích hoạt sticky cho Table Header
         rowClassName={(record) => {
           switch (record.status) {
             case "active":
@@ -275,6 +319,12 @@ const HotelPage = () => {
       />
       {isModalOpen && (
         <ModalProduct openModal={setIsModalOpen} selected={selected} />
+      )}
+      {isModalReviewOpen && (
+        <ModalReviewHotel
+          openModal={setIsModalReviewOpen}
+          selected={selected}
+        />
       )}
       <ToastContainer />
     </div>

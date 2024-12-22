@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Table, Modal, Dropdown, Menu, Space, Form, Select } from "antd";
+import {
+  Table,
+  Modal,
+  Dropdown,
+  Menu,
+  Space,
+  Form,
+  Select,
+  Popconfirm,
+} from "antd";
 import ModalRoomPage from "./ModalRoomPage";
 import { DownOutlined } from "@ant-design/icons";
 import "react-toastify/dist/ReactToastify.css";
@@ -56,21 +65,6 @@ const RoomPage = () => {
     setSelected(product);
   };
 
-  // const filtersID = filterRooms?.map((item) => ({
-  //   text: item._id.toString(),
-  //   value: item._id.toString(),
-  // }));
-
-  // const filtersName = filterRooms?.map((item) => ({
-  //   text: item.roomName.toString(),
-  //   value: item.roomName.toString(),
-  // }));
-
-  // const filtersTypeName = filterRooms?.map((item) => ({
-  //   text: item.roomType.toString(),
-  //   value: item.roomType.toString(),
-  // }));
-
   const truncateStyle = {
     display: "-webkit-box",
     WebkitLineClamp: 3,
@@ -81,10 +75,10 @@ const RoomPage = () => {
     lineHeight: "1.2em",
   };
 
-  const delHotel = async (xxx) => {
+  const confirm = async (xxx) => {
     try {
-      const response = await apiDelete(`delete-hotel/${xxx._id}`);
-      toast.success(response, {
+      const response = await apiDelete(`delete-room/${xxx._id}`);
+      toast.success(response.message, {
         position: "top-center",
         autoClose: 1000,
         hideProgressBar: false,
@@ -109,7 +103,16 @@ const RoomPage = () => {
       </Menu.Item>
       <Menu.Divider />
       <Menu.Item key="2">
-        <button onClick={() => delHotel(record)}>Delete</button>
+        <Popconfirm
+          title="Delete the room"
+          description="Are you sure to delete this room?"
+          onConfirm={() => confirm(record)}
+          // onCancel={cancel}
+          okText="Yes"
+          cancelText="No"
+        >
+          <button className="text-red-500">Delete</button>
+        </Popconfirm>
       </Menu.Item>
     </Menu>
   );
@@ -189,13 +192,6 @@ const RoomPage = () => {
       ),
     },
     {
-      title: "Children",
-      dataIndex: "children",
-      render: (text, record) => (
-        <div style={{ width: 100 }}>{record.children}</div>
-      ),
-    },
-    {
       title: "Amenities",
       dataIndex: "amenities",
       render: (text, record) => {
@@ -259,11 +255,9 @@ const RoomPage = () => {
     },
   ];
 
-  console.log(allHotels);
-
   return (
     <div>
-      <Form layout="vertical">
+      <Form layout="vertical" className="sticky top-11 z-50">
         <Form.Item>
           <Select onChange={handleRooms} placeholder="Select Hotel">
             <Option value="">Select Room</Option>
@@ -278,22 +272,23 @@ const RoomPage = () => {
 
       <Table
         columns={columns}
-        dataSource={test}
-        scroll={{ x: true, y: 950 }}
+        dataSource={filterRooms}
+        scroll={{ x: true }}
+        // scroll={{ x: true, y: 950 }}
         // style={{ maxWidth: 1080 }}
-        sticky
-        // rowClassName={(record) => {
-        //   switch (record.status) {
-        //     case "available":
-        //       return;
-        //     case "unavailable":
-        //       return "bg-red-100";
-        //     case "occupied":
-        //       return "bg-yellow-100";
-        //     default:
-        //       return "";
-        //   }
-        // }}
+        sticky={{ offsetHeader: 80 }} // Kích hoạt sticky cho Table Header
+        rowClassName={(record) => {
+          switch (record.status) {
+            case "available":
+              return;
+            case "unavailable":
+              return "bg-red-100";
+            case "occupied":
+              return "bg-yellow-100";
+            default:
+              return "";
+          }
+        }}
         // pagination={{
         //   current: page,
         //   pageSize: pageSize,
@@ -302,9 +297,9 @@ const RoomPage = () => {
         // }}
         // onChange={handleTableChange}
       />
-      {/* {isModalOpen && (
+      {isModalOpen && (
         <ModalRoomPage openModal={setIsModalOpen} selected={selected} />
-      )} */}
+      )}
       <ToastContainer />
     </div>
   );

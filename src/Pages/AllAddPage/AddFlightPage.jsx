@@ -12,9 +12,25 @@ import {
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { apiPostFormData } from "../../API/APIService";
+import { apiPost, apiPostFormData } from "../../API/APIService";
 
 const { Option } = Select;
+
+const airPlaneName = [
+  "Vietnam Airlines",
+  "VietJet",
+  "Jetstar Pacific",
+  "Bamboo Airways",
+];
+
+const airDepartureAirport = [
+  "Da Nang International Airport",
+  "Cam Ranh International Airport",
+  "Tan Son Nhat International Airport",
+  "Can Tho International Airport",
+  "Phu Bai International Airport",
+  "Noi Bai International Airport",
+];
 
 const AddFlightPage = () => {
   const navigate = useNavigate();
@@ -22,43 +38,24 @@ const AddFlightPage = () => {
   const onFinish = async (values) => {
     const toastId = toast.loading("Creating...");
     try {
-      const formData = new FormData();
-      formData.append("userId", values.userId);
-      formData.append("tourId", values.tourId);
-      formData.append("airlineName", values.airlineName);
-      formData.append("availableSeats", values.availableSeats);
-      formData.append("departureAirport", values.departureAirport);
-      formData.append("destinationAirport", values.destinationAirport);
-      formData.append("departureDate", values.departureDate);
-      formData.append("destinationDate", values.destinationDate);
-      formData.append("price", values.price);
-      formData.append("status", values.status);
+      // const formData = new FormData();
 
-      const response = await apiPostFormData("create-flight", formData);
+      console.log(values);
+      const response = await apiPost("create-flight", values);
 
-      if (response.ok) {
-        toast.update(toastId, {
-          render: "Flight created successfully!",
-          type: "success",
-          isLoading: false,
-          autoClose: 3000,
-        });
-        navigate("/flights");
-      } else {
-        toast.update(toastId, {
-          render: "Failed to create flight.",
-          type: "error",
-          isLoading: false,
-          autoClose: 3000,
-        });
-      }
+      toast.update(toastId, {
+        render: "Flight created successfully!",
+        type: "success",
+        isLoading: false,
+        autoClose: 1000,
+      });
     } catch (error) {
       console.log(error);
       toast.update(toastId, {
         render: "An error occurred.",
         type: "error",
         isLoading: false,
-        autoClose: 3000,
+        autoClose: 1000,
       });
     }
   };
@@ -70,48 +67,30 @@ const AddFlightPage = () => {
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              label="User ID"
-              name="userId"
-              rules={[{ required: true, message: "Please input the user ID!" }]}
-            >
-              <Input />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              label="Tour ID"
-              name="tourId"
-              rules={[{ required: true, message: "Please input the tour ID!" }]}
-            >
-              <Input />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item
               label="Airline Name"
               name="airlineName"
               rules={[
                 { required: true, message: "Please input the airline name!" },
               ]}
             >
-              <Input />
+              <Select placeholder="Select Flight">
+                {airPlaneName.map((item, index) => (
+                  <Option key={index} value={item}>
+                    {item}
+                  </Option>
+                ))}
+              </Select>
             </Form.Item>
           </Col>
           <Col span={12}>
             <Form.Item
-              label="Available Seats"
-              name="availableSeats"
+              label="Flight Number"
+              name="flightNumber"
               rules={[
-                {
-                  required: true,
-                  message: "Please input the available seats!",
-                },
+                { required: true, message: "Please input the flightNumber!" },
               ]}
             >
-              <InputNumber min={0} style={{ width: "100%" }} />
+              <Input placeholder="In put flightNumber" />
             </Form.Item>
           </Col>
         </Row>
@@ -128,7 +107,13 @@ const AddFlightPage = () => {
                 },
               ]}
             >
-              <Input />
+              <Select placeholder="Select Flight">
+                {airDepartureAirport.map((item, index) => (
+                  <Option key={index} value={item}>
+                    {item}
+                  </Option>
+                ))}
+              </Select>
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -142,7 +127,13 @@ const AddFlightPage = () => {
                 },
               ]}
             >
-              <Input />
+              <Select placeholder="Select Flight">
+                {airDepartureAirport.map((item, index) => (
+                  <Option key={index} value={item}>
+                    {item}
+                  </Option>
+                ))}
+              </Select>
             </Form.Item>
           </Col>
         </Row>
@@ -188,17 +179,19 @@ const AddFlightPage = () => {
               <InputNumber min={0} style={{ width: "100%" }} />
             </Form.Item>
           </Col>
+
           <Col span={12}>
             <Form.Item
-              label="Status"
-              name="status"
-              rules={[{ required: true, message: "Please select the status!" }]}
+              label="Available Seats"
+              name="availableSeats"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input the available seats!",
+                },
+              ]}
             >
-              <Select>
-                <Option value="scheduled">Scheduled</Option>
-                <Option value="cancelled">Cancelled</Option>
-                <Option value="completed">Completed</Option>
-              </Select>
+              <InputNumber min={0} style={{ width: "100%" }} />
             </Form.Item>
           </Col>
         </Row>

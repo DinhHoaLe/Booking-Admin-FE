@@ -37,16 +37,30 @@ const LoginPage = () => {
       });
       const res1 = await req1.json();
       if (req1.status === 400) {
-        toast.warn(res1.message, {
-          position: "top-center",
-          autoClose: 1000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        });
+        if (res1.emailVerified === false) {
+          toast.warn(res1.message, {
+            position: "top-center",
+            autoClose: 1000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            onClose: () => navigate("/verify-email"),
+          });
+        } else {
+          toast.warn(res1.message, {
+            position: "top-center",
+            autoClose: 1000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+        }
       } else if (req1.status === 200) {
         toast.success(res1.message, {
           position: "top-center",
@@ -106,6 +120,7 @@ const LoginPage = () => {
           justifyContent: "center",
           alignItems: "center",
           padding: "20px",
+          width: "100%",
         }}
       >
         <Row
@@ -113,7 +128,7 @@ const LoginPage = () => {
             border: "1px solid #e6e6e6",
             borderRadius: "10px",
             overflow: "hidden",
-            maxWidth: "900px",
+            maxWidth: "750px",
             width: "100%",
             boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
           }}
@@ -129,7 +144,7 @@ const LoginPage = () => {
             xs={24}
             md={12}
             style={{
-              padding: "40px",
+              padding: "20px",
               display: "flex",
               flexDirection: "row",
               alignItems: "center",

@@ -20,9 +20,14 @@ const AllProductPage = () => {
         type="card"
         size="large"
         tabBarStyle={{
+          position: "sticky", // Tabs sẽ dính khi cuộn
           display: "flex",
           justifyContent: "space-between",
-          width: "100%",
+          // width: "100%",
+          top: 0, // Cố định tabs ở đầu trang khi cuộn
+          zIndex: 1000, // Đảm bảo Tabs hiển thị trên các phần tử khác
+          backgroundColor: "#fff",
+          border: "2px solid #f0f0f0",
         }}
         items={nameHeader.map((item, i) => ({
           label: (

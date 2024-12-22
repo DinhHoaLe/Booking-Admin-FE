@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from "react";
-import {
-  DownOutlined,
-  EyeOutlined,
-  EyeInvisibleOutlined,
-} from "@ant-design/icons";
-import { Table, Dropdown, Menu, Space } from "antd";
-import ModalCustomer from "./modalCustomer";
+import { DownOutlined } from "@ant-design/icons";
+import { Table, Dropdown, Menu, Space, Popconfirm } from "antd";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchUsers } from "../../Redux/Slide/userSlice";
+import ModalViewProfileCustomer from "./modalViewProfileCustomer";
+import ModalCustomerHistory from "./modalHistoryCustomer";
+import { apiDelete } from "../../API/APIService";
 
 const UserCustomerPage = () => {
-  const [modal, setModal] = useState(false);
+  const [modalHistory, setModalHistory] = useState(false);
+  const [modalView, setModalView] = useState(false);
   const [selected, setSelected] = useState("");
   const [dataUserName, setDataUserName] = useState([]);
 
@@ -31,9 +30,14 @@ const UserCustomerPage = () => {
   if (status === "loading") return <p>Loading...</p>;
   if (status === "failed") return <p>Error: {error}</p>;
 
-  const openModal = (select) => {
+  const openModalHistory = (select) => {
     setSelected(select);
-    setModal(true);
+    setModalHistory(true);
+  };
+
+  const openModalView = (select) => {
+    setSelected(select);
+    setModalView(true);
   };
 
   const filtersID = dataUserName.map((item) => ({
@@ -73,14 +77,44 @@ const UserCustomerPage = () => {
     { text: "Female", value: "Female" },
   ];
 
+  const confirm = async (xxx) => {
+    try {
+      const response = await apiDelete(`delete-user/${xxx._id}`);
+      toast.success(response.message, {
+        position: "top-center",
+        autoClose: 1000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const menu = (record) => (
     <Menu>
       <Menu.Item key="0">
-        <button onClick={() => openModal(record)}>Edit</button>
+        <button onClick={() => openModalView(record)}>Edit</button>
+      </Menu.Item>
+      <Menu.Item key="1">
+        <button onClick={() => openModalHistory(record)}>History</button>
       </Menu.Item>
       <Menu.Divider />
-      <Menu.Item key="1">
-        <button onClick={() => delUser(record)}>Delete</button>
+      <Menu.Item key="2">
+        <Popconfirm
+          title="Delete the tour"
+          description="Are you sure to delete this tour?"
+          onConfirm={() => confirm(record)}
+          // onCancel={cancel}
+          okText="Yes"
+          cancelText="No"
+        >
+          <button className="text-red-500">Delete</button>
+        </Popconfirm>
       </Menu.Item>
     </Menu>
   );
@@ -97,8 +131,8 @@ const UserCustomerPage = () => {
       render: (text, record) => <div>{record._id}</div>,
     },
     {
-      title: "Contact Info",
-      dataIndex: "ContactInfo",
+      title: "Email",
+      dataIndex: "email",
       showSorterTooltip: {
         target: "full-header",
       },
@@ -161,7 +195,9 @@ const UserCustomerPage = () => {
     {
       title: "Birthday",
       dataIndex: "dateOfBirth",
-      render: (text, record) => <div>{record.DOB.slice(0, 10)}</div>,
+      render: (text, record) => (
+        <div className="w-24">{record.DOB.slice(0, 10)}</div>
+      ),
     },
     {
       title: "Avatar",
@@ -276,11 +312,22 @@ const UserCustomerPage = () => {
         showSorterTooltip={{
           target: "sorter-icon",
         }}
-        scroll={{ x: true, y: 950 }}
+        scroll={{ x: true }}
         // style={{ maxWidth: 1080 }}
-        sticky
+        sticky={{ offsetHeader: 35 }}
       />
-      {modal && <ModalCustomer setModal={setModal} selected={selected} />}
+      {modalHistory && (
+        <ModalCustomerHistory
+          setModalHistory={setModalHistory}
+          selected={selected}
+        />
+      )}
+      {modalView && (
+        <ModalViewProfileCustomer
+          setModalView={setModalView}
+          selected={selected}
+        />
+      )}
       {/* <ToastContainer /> */}
     </div>
   );

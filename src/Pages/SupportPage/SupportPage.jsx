@@ -4,12 +4,12 @@ import { DownOutlined } from "@ant-design/icons";
 import ModalQuotes from "./modalQuotes";
 import { ToastContainer, toast } from "react-toastify";
 import ModalEmail from "./modalEmail";
+import { apiGet, apiGetAll } from "../../API/APIService";
 
 const SupportPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpenEmail, setIsModalOpenEmail] = useState(false);
   const [selected, setSelected] = useState(null);
-  const [token, setToken] = useState("");
   const [dataQuotes, setDataQuotes] = useState([]);
 
   const openModal = (record) => {
@@ -22,62 +22,94 @@ const SupportPage = () => {
     setSelected(record);
   };
 
+  const callApi = async () => {
+    try {
+      const response = await apiGetAll("support");
+      setDataQuotes(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const truncateStyle = {
+    display: "-webkit-box",
+    WebkitLineClamp: 3,
+    WebkitBoxOrient: "vertical",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    maxHeight: "calc(1.2em * 3)",
+    lineHeight: "1.2em",
+  };
+
+  useEffect(() => {
+    callApi();
+  }, []);
+
+  const deleteSupport = async () => {};
+
+  console.log(dataQuotes);
+
   const columns = [
     {
-      title: "ID",
+      title: "Reviews ID",
       dataIndex: "_id",
       key: "_id",
+      fixed: "left",
       // width: 100,
+      render: (text, record) => <div>{text}</div>,
     },
     {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
-      // width: 150,
+      title: "First Name",
+      dataIndex: "firstName",
+      key: "firstName",
+      render: (text, record) => (
+        <div className="w-20">{record.userId.firstName}</div>
+      ),
     },
     {
-      title: "Email",
-      dataIndex: "email",
-      key: "email",
-      // width: 200,
-    },
-    {
-      title: "Phone",
-      dataIndex: "phone",
-      key: "phone",
-      // width: 150,
+      title: "Last Name",
+      dataIndex: "lastName",
+      key: "lastName",
+      render: (text, record) => (
+        <div className="w-20">{record.userId.lastName}</div>
+      ),
     },
     {
       title: "Message",
       dataIndex: "message",
       key: "message",
-      // width: 300,
+      render: (text, record) => (
+        <div style={{ width: 150 }}>
+          <p style={truncateStyle}>{record.message}</p>
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              alert(record.message);
+            }}
+          >
+            Read more
+          </a>
+        </div>
+      ),
     },
     {
       title: "Time",
       dataIndex: "createdAt",
       key: "createdAt",
       // width: 300,
-      render: (text, record) => record.createdAt.slice(0, 10),
+      render: (text, record) => (
+        <div className="w-20">{record.createdAt.slice(0, 10)}</div>
+      ),
     },
     {
       title: "Reply",
       key: "reply",
-      render: (text, record) =>
-        record.reply && record.reply.statusReply ? "Yes" : "No",
-    },
-    {
-      title: "Time Reply",
-      dataIndex: "timeReply",
-      key: "timeReply",
-      // width: 300,
-      render: (text, record) =>
-        record.reply.timeReply ? record.reply.timeReply.slice(0, 10) : "",
-    },
-    {
-      title: "Note",
-      key: "note",
-      render: (text, record) => record.reply.note,
+      render: (text, record) => (
+        <div className="w-20">
+          {record.reply && record.statusReply ? "Yes" : "No"}
+        </div>
+      ),
     },
     {
       title: "Status",
@@ -108,7 +140,7 @@ const SupportPage = () => {
               </Menu.Item>
               <Menu.Divider />
               <Menu.Item key="3">
-                {/* <button onClick={() => deleteSupport(record)}>Delete</button> */}
+                <button onClick={() => deleteSupport(record)}>Delete</button>
               </Menu.Item>
             </Menu>
           }
@@ -126,13 +158,13 @@ const SupportPage = () => {
   ];
 
   return (
-    <div className="overflow-hidden">
+    <div>
       <Table
         columns={columns}
         dataSource={dataQuotes}
         rowKey="_id"
-        scroll={{ x: 1200, y: 950 }}
-        sticky
+        scroll={{ x: true }}
+        sticky={{ offsetHeader: 35 }} // Kích hoạt sticky cho Table Header
         rowClassName={(record) => {
           switch (record.status) {
             case "available":
@@ -149,20 +181,10 @@ const SupportPage = () => {
         }}
       />
       {isModalOpen && (
-        <ModalQuotes
-          openModal={setIsModalOpen}
-          selected={selected}
-          token={token}
-          setToken={setToken}
-        />
+        <ModalQuotes openModal={setIsModalOpen} selected={selected} />
       )}
       {isModalOpenEmail && (
-        <ModalEmail
-          openModal={setIsModalOpenEmail}
-          selected={selected}
-          token={token}
-          setToken={setToken}
-        />
+        <ModalEmail openModal={setIsModalOpenEmail} selected={selected} />
       )}
       <ToastContainer />
     </div>

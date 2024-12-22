@@ -70,56 +70,62 @@ const AddTourPage = () => {
     const toastId = toast.loading("Creating...");
     try {
       const formData = new FormData();
-      fileList.forEach((file) => {
-        formData.append("files", file.originFileObj);
-      });
-      formData.append("avatar", avatar);
-      formData.append("hotelName", values.hotelName);
-      formData.append("address[street]", values.street);
-      formData.append("address[ward]", values.ward);
-      formData.append("address[district]", values.district);
-      formData.append("address[city]", values.city);
-      formData.append("address[country]", values.country);
-      formData.append("phone", values.phone);
-      formData.append("availableRooms", values.availableRooms);
-      formData.append("priceAveragePerNight", values.priceAveragePerNight);
-      formData.append("description", values.description);
-      formData.append("category", values.category);
-      formData.append("star", values.star);
-      formData.append("status", values.status);
 
-      // Gửi dữ liệu tới BE
-      const response = await apiPostFormData("create-hotel", formData);
-
-      if (response.ok) {
-        toast.update(toastId, {
-          render: "Hotel created successfully!",
-          type: "success",
-          isLoading: false,
-          autoClose: 3000,
-        });
-      } else {
-        toast.update(toastId, {
-          render: "Failed to create hotel.",
-          type: "error",
-          isLoading: false,
-          autoClose: 3000,
+      if (fileList) {
+        fileList.forEach((file) => {
+          formData.append("files", file.originFileObj);
         });
       }
+
+      formData.append("avatar", avatar[0].originFileObj);
+      formData.append("tourName", values.tourName);
+      formData.append("tourCode", values.tourCode);
+      formData.append("startDateBooking", values.startDateBooking);
+      formData.append("endDateBooking", values.endDateBooking);
+      formData.append("price", values.price);
+      formData.append("description", values.description);
+      formData.append("capacity", values.capacity);
+      formData.append("duration", values.duration);
+
+      formData.append(
+        "inforLocation[startDestination]",
+        values.startDestination
+      );
+      formData.append("inforLocation[endDestination]", values.endDestination);
+      values.destination.forEach((item) => {
+        formData.append("inforLocation[destination][]", item);
+      });
+
+      values.transportationMethod.forEach((item) => {
+        formData.append("transportationMethod[]", item);
+      });
+
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+
+      const response = await apiPostFormData("create-tour", formData);
+
+      toast.update(toastId, {
+        render: "Tour is created successfully!",
+        type: "success",
+        isLoading: false,
+        autoClose: 1000,
+      });
     } catch (error) {
       console.log(error);
       toast.update(toastId, {
         render: "An error occurred.",
         type: "error",
         isLoading: false,
-        autoClose: 3000,
+        autoClose: 1000,
       });
     }
   };
 
   return (
     <div className="container mx-auto p-4 bg-gray-50 rounded-xl">
-      <h1 className="text-2xl font-bold mb-4">Add Hotel</h1>
+      <h1 className="text-2xl font-bold mb-4">Add Tour</h1>
       <Form layout="vertical" onFinish={onFinish}>
         <Row gutter={16}>
           <Col span={12}>
@@ -135,7 +141,21 @@ const AddTourPage = () => {
           </Col>
           <Col span={12}>
             <Form.Item
-              label="Start Date Booking"
+              label="Tour code"
+              name="tourCode"
+              rules={[
+                { required: true, message: "Please input the tour code!" },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              label="Start Date"
               name="startDateBooking"
               rules={[
                 { required: true, message: "Please select the start date!" },
@@ -144,27 +164,15 @@ const AddTourPage = () => {
               <DatePicker style={{ width: "100%" }} />
             </Form.Item>
           </Col>
-        </Row>
-
-        <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              label="End Date Booking"
+              label="End Date"
               name="endDateBooking"
               rules={[
                 { required: true, message: "Please select the end date!" },
               ]}
             >
               <DatePicker style={{ width: "100%" }} />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              label="Price"
-              name="price"
-              rules={[{ required: true, message: "Please input the price!" }]}
-            >
-              <InputNumber min={0} style={{ width: "100%" }} />
             </Form.Item>
           </Col>
         </Row>
@@ -206,7 +214,17 @@ const AddTourPage = () => {
                 },
               ]}
             >
-              <Input />
+              <Select placeholder="Enter destinations">
+                <Option value="Hà Nội">TP Hà Nội</Option>
+                <Option value="SaPa">SaPa</Option>
+                <Option value="Cà Mau">Cà Mau</Option>
+                <Option value="Đà Lạt">Đà Lạt</Option>
+                <Option value="TP Hồ Chí Minh">TP Hồ Chí Minh</Option>
+                <Option value="TP Đà Nẵng">TP Đà Nẵng</Option>
+                <Option value="Hạ Long">Hạ Long</Option>
+                <Option value="Nha Trang">Nha Trang</Option>
+                <Option value="Phan Thiết">Phan Thiết</Option>
+              </Select>
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -220,13 +238,23 @@ const AddTourPage = () => {
                 },
               ]}
             >
-              <Input />
+              <Select placeholder="Enter destinations">
+                <Option value="Hà Nội">TP Hà Nội</Option>
+                <Option value="SaPa">SaPa</Option>
+                <Option value="Cà Mau">Cà Mau</Option>
+                <Option value="Đà Lạt">Đà Lạt</Option>
+                <Option value="TP Hồ Chí Minh">TP Hồ Chí Minh</Option>
+                <Option value="TP Đà Nẵng">TP Đà Nẵng</Option>
+                <Option value="Hạ Long">Hạ Long</Option>
+                <Option value="Nha Trang">Nha Trang</Option>
+                <Option value="Phan Thiết">Phan Thiết</Option>
+              </Select>
             </Form.Item>
           </Col>
         </Row>
 
         <Row gutter={16}>
-          <Col span={24}>
+          <Col span={12}>
             <Form.Item
               label="Destination"
               name="destination"
@@ -235,8 +263,32 @@ const AddTourPage = () => {
               ]}
             >
               <Select mode="tags" placeholder="Enter destinations">
-                <Option value="destination1">Destination 1</Option>
-                <Option value="destination2">Destination 2</Option>
+                <Option value="Hà Nội">TP Hà Nội</Option>
+                <Option value="SaPa">SaPa</Option>
+                <Option value="Cà Mau">Cà Mau</Option>
+                <Option value="Đà Lạt">Đà Lạt</Option>
+                <Option value="TP Hồ Chí Minh">TP Hồ Chí Minh</Option>
+                <Option value="TP Đà Nẵng">TP Đà Nẵng</Option>
+                <Option value="Hạ Long">Hạ Long</Option>
+                <Option value="Nha Trang">Nha Trang</Option>
+                <Option value="Phan Thiết">Phan Thiết</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Transportation Method"
+              name="transportationMethod"
+            >
+              <Select mode="tags" placeholder="Enter transportation methods">
+                <Option value="Airplane">Airplane</Option>
+                <Option value="Bus">Bus</Option>
+                <Option value="Motobike">Motobike</Option>
+                <Option value="Train">Train</Option>
+                <Option value="Hiking">Hiking</Option>
+                <Option value="Fly">Fly</Option>
+                <Option value="Walk">Walk</Option>
               </Select>
             </Form.Item>
           </Col>
@@ -247,12 +299,12 @@ const AddTourPage = () => {
             <Form.Item
               label="Travel Schedule"
               name="travelSchedule"
-              rules={[
-                {
-                  required: true,
-                  message: "Please input the travel schedule!",
-                },
-              ]}
+              // rules={[
+              //   {
+              //     required: true,
+              //     message: "Please input the travel schedule!",
+              //   },
+              // ]}
             >
               <Select mode="tags" placeholder="Enter travel schedule">
                 <Option value="schedule1">Schedule 1</Option>
@@ -268,49 +320,14 @@ const AddTourPage = () => {
               <Input.TextArea rows={2} />
             </Form.Item>
           </Col>
+
           <Col span={12}>
             <Form.Item
-              label="Transportation Method"
-              name="transportationMethod"
+              label="Price"
+              name="price"
+              rules={[{ required: true, message: "Please input the price!" }]}
             >
-              <Select mode="tags" placeholder="Enter transportation methods">
-                <Option value="bus">Bus</Option>
-                <Option value="train">Train</Option>
-                <Option value="flight">Flight</Option>
-              </Select>
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Row gutter={16}>
-          <Col span={24}>
-            <Form.Item label="Description" name="description">
-              <Input.TextArea rows={4} />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Row gutter={16}>
-          <Col span={24}>
-            <Form.Item label="Tour Images" name="listImg">
-              <ImgCrop rotationSlider>
-                <Upload
-                  listType="picture-card"
-                  fileList={fileList}
-                  onPreview={onPreview}
-                  onChange={({ fileList: newFileList }) =>
-                    setFileList(newFileList)
-                  }
-                  beforeUpload={() => false}
-                >
-                  {fileList.length < 10 && (
-                    <div>
-                      <PlusOutlined />
-                      <div style={{ marginTop: 8 }}>Upload</div>
-                    </div>
-                  )}
-                </Upload>
-              </ImgCrop>
+              <InputNumber min={0} style={{ width: "100%" }} />
             </Form.Item>
           </Col>
         </Row>
@@ -380,7 +397,11 @@ const AddTourPage = () => {
         </Row>
 
         <Form.Item>
-          <Button type="primary" htmlType="submit">
+          <Button
+            type="primary"
+            htmlType="submit"
+            className="w-full bg-[#07689F]"
+          >
             Save Hotel
           </Button>
         </Form.Item>

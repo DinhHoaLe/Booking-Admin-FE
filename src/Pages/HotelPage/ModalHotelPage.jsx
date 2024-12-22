@@ -60,9 +60,6 @@ const EditProduct = ({ openModal, selected }) => {
       dispatch(fetchAddress());
     }
   }, [dispatch, statusAddress]);
-  const handleCancel = () => {
-    openModal(false);
-  };
 
   if (statusAddress === "loading") return <p>Loading...</p>;
   if (statusAddress === "error") return <p>{errorAddress.message}</p>;
@@ -80,6 +77,10 @@ const EditProduct = ({ openModal, selected }) => {
     setWard([]);
     const getWard = district.find((item) => item.Name === value);
     setWard(getWard.Wards);
+  };
+  
+  const handleCancel = () => {
+    openModal(false);
   };
 
   const handlePreview = async (file) => {

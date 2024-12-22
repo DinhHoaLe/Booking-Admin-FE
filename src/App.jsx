@@ -7,7 +7,6 @@ import Dashboard from "./Pages/DashBoardPage/DashBoardPage";
 import UserAdminPage from "./Pages/UserAdminPage/UserAdminPage";
 import ReviewPage from "./Pages/ReviewPage/ReviewPage";
 import RatingPage from "./Pages/RatingPage/RatingPage";
-import PromotionPage from "./Pages/PromotionPage/PromotionPage";
 import SettingPage from "./Pages/SettingPage/SettingPage";
 import HelpPage from "./Pages/HelpPage/HelpPage";
 import AnalyticsPage from "./Pages/AnalyticsPage/AnalyticsPage";
@@ -17,19 +16,42 @@ import AllAddPage from "./Pages/AllAddPage/AllAddPage";
 import AllBookingPage from "./Pages/AllBookingPage/AllBookingPage";
 import AllUserPage from "./Pages/AllUserPage/AllUserPage";
 import AllSupportPage from "./Pages/AllSupportPage/AllSupportPage";
+import VerifyEmailPage from "./Pages/VerifyEmailPage/VerifyEmailPage";
+import DetailBookingHotelPage from "./Pages/AllBookingPage/DetailBookingHotelPage";
+import DetailBookingTourPage from "./Pages/AllBookingPage/DetailBookingTourPage";
+import DetailBookingFlightPage from "./Pages/AllBookingPage/DetailBookingFlightPage";
+import AllPromotionPage from "./Pages/PromotionPage/AllPromotionPage";
 
 const Router = createBrowserRouter([
   {
     path: "/",
     element: <LoginPage />,
     errorElement: <ErrorPage />,
-    children: [],
   },
   {
     path: "/forgot-password",
     element: <LoginPage />,
     errorElement: <ErrorPage />,
-    children: [],
+  },
+  {
+    path: "/verify-email",
+    element: <VerifyEmailPage />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/detail-hotel-booking/:bookingId",
+    element: <DetailBookingHotelPage />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/detail-tour-booking/:bookingId",
+    element: <DetailBookingTourPage />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/detail-flight-booking/:bookingId",
+    element: <DetailBookingFlightPage />,
+    errorElement: <ErrorPage />,
   },
   {
     path: "/admin-page",
@@ -78,7 +100,7 @@ const Router = createBrowserRouter([
       },
       {
         path: "promotion",
-        element: <PromotionPage />,
+        element: <AllPromotionPage />,
         errorElement: <ErrorPage />,
       },
       {
@@ -107,6 +129,10 @@ const Router = createBrowserRouter([
         errorElement: <ErrorPage />,
       },
     ],
+  },
+  {
+    path: "*",
+    element: <ErrorPage />,
   },
 ]);
 

@@ -1,44 +1,36 @@
 import React, { useState } from "react";
-import { Modal, Input, Select, Form } from "antd";
+import { Modal, Input, Select, Form, Upload, Image, DatePicker } from "antd";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
+import { PlusOutlined } from "@ant-design/icons";
+import ImgCrop from "antd-img-crop";
+import moment from "moment";
+import { apiPatch, apiPatchFormData } from "../../API/APIService";
+import { useNavigate } from "react-router-dom";
 
-const EditProduct = ({
-  openModal,
-  selectedProduct,
-  callApi,
-  callRefreshToken,
-  token,
-  setToken,
-}) => {
+const { Option } = Select;
+
+const EditProduct = ({ openModal, selected }) => {
   const [form] = Form.useForm(); // Sử dụng Form.useForm() để quản lý form
-  const [newImage, setNewImage] = useState(selectedProduct.image);
-  const [newUploadImage, setNewUploadImage] = useState(null);
-
+  const navigate = useNavigate();
+  const [isChangeAvatar, setIsChangeAvatar] = useState(false);
+  const [fileList, setFileList] = useState([]);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState("");
+  const [avatar, setAvatar] = useState(
+    selected.imgTour?.avatar
+      ? [
+          {
+            uid: "-1",
+            name: selected._id,
+            status: "done",
+            url: selected.imgTour.avatar,
+          },
+        ]
+      : []
+  );
   const handleCancel = () => {
     openModal(false);
-  };
-
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setNewImage(reader.result);
-        setNewUploadImage(file);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const setCookie = (name, value, days) => {
-    let expires = "";
-    if (days) {
-      const date = new Date();
-      date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-      expires = "; expires=" + date.toUTCString();
-    }
-    document.cookie = name + "=" + (value || "") + expires + "; path=/";
   };
 
   const handleOk = async () => {
@@ -47,111 +39,106 @@ const EditProduct = ({
       const values = await form.validateFields(); // Lấy tất cả giá trị từ form
 
       const formData = new FormData();
-      formData.append("file", newUploadImage); // Thêm tệp vào FormData
-      formData.append("productId", selectedProduct._id);
-      formData.append("category", values.category);
+      if (isChangeAvatar) {
+        if (avatar.length > 0 && avatar[0].originFileObj) {
+          formData.append("avatar", avatar[0].originFileObj);
+        } else {
+          toast.error("Please upload an avatar!");
+          return;
+        }
+      }
+      formData.append("tourName", values.tourName);
+      formData.append("capacity", values.capacity);
       formData.append("price", values.price);
-      formData.append("color", values.color);
-      formData.append("brand", values.brand);
-      formData.append("quantity", values.quantity);
+      formData.append("startDateBooking", values.startDateBooking);
+      formData.append("endDateBooking", values.endDateBooking);
+      formData.append("duration", values.duration);
       formData.append("description", values.description);
       formData.append("status", values.status);
-      formData.append("discount", values.discount);
-      formData.append("slug", values.slug);
-      formData.append("sku", values.sku);
-      const req2 = await fetch(
-        `http://localhost:8080/api/v1/products/update-product/${selectedProduct._id}`,
-        {
-          method: "PATCH",
-          headers: {
-            // "Content-Type": "application/json",
-            authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        }
+      formData.append(
+        "inforLocation[startDestination]",
+        values.startDestination
       );
-      // const res2 = await req2.json();
-      if (req2.status === 403) {
-        const getToken = await callRefreshToken(token);
-        if (!getToken) throw new Error("Please log in first!");
-        setToken(getToken);
-        setCookie("token", getToken, 7);
-        const req3 = await fetch(
-          `http://localhost:8080/api/v1/products/update-product/${selectedProduct._id}`,
-          {
-            method: "PATCH",
-            headers: {
-              // "Content-Type": "application/json",
-              authorization: `Bearer ${getToken}`,
-            },
-            body: formData,
-          }
-        );
-        if (req3.status === 200) {
-          toast.update(toastId, {
-            render: "Updated successful!",
-            type: "success",
-            isLoading: false,
-            autoClose: 3000,
-            onClose: () => openModal(false),
-          });
-          callApi();
-        } else {
-          const res3 = await req3.json();
-          toast.update(toastId, {
-            render: res3.message,
-            type: "warning",
-            isLoading: false,
-            autoClose: 3000,
-          });
-        }
-      }
-      if (req2.status === 200) {
-        toast.update(toastId, {
-          render: "Updated successful!",
-          type: "success",
-          isLoading: false,
-          autoClose: 3000,
-          onClose: () => openModal(false),
-        });
-        callApi();
-      } else {
-        const res3 = await req2.json();
-        toast.update(toastId, {
-          render: res3.message,
-          type: "warning",
-          isLoading: false,
-          autoClose: 3000,
-        });
-      }
+      formData.append("inforLocation[endDestination]", values.endDestination);
+
+      values.transportationMethod.forEach((item) =>
+        formData.append("transportationMethod[]", item)
+      );
+
+      values.inforLocation.forEach((item) =>
+        formData.append("inforLocation[destination][]", item)
+      );
+
+      const update = await apiPatchFormData(
+        `edit-tour/${selected._id}`,
+        formData
+      );
+
+      toast.update(toastId, {
+        // Sử dụng toastId
+        render: "Tour is updated successfully!",
+        type: "success",
+        isLoading: false,
+        autoClose: 1000,
+        onClose: () => (navigate("/admin-page/product"), openModal(false)),
+      });
     } catch (error) {
       console.error("Error updating product:", error);
       toast.update(toastId, {
         render: "Something went wrong, please try again.",
         type: "error",
         isLoading: false,
-        autoClose: 3000,
+        autoClose: 1000,
       });
     }
   };
 
-  const colors = [
-    "yellow-500",
-    "orange-500",
-    "white",
-    "blue-500",
-    "black",
-    "red-500",
-    "gray-500",
-    "sky-500",
-    "rose-500",
-    "cyan-500",
-    "violet-500",
-  ];
+  const handlePreview = async (file) => {
+    setPreviewImage(file.url || file.preview);
+    setPreviewOpen(true);
+  };
+
+  const handleAvatarChange = ({ fileList }) => {
+    const updatedFileList = fileList.slice(-1);
+    setIsChangeAvatar(true);
+    setAvatar(updatedFileList);
+  };
+
+  const uploadButton = (
+    <button
+      style={{
+        border: 0,
+        background: "none",
+      }}
+      type="button"
+    >
+      <PlusOutlined />
+      <div
+        style={{
+          marginTop: 8,
+        }}
+      >
+        Upload
+      </div>
+    </button>
+  );
+
+  const onPreview = async (file) => {
+    let src = file.url;
+    if (!src) {
+      src = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file.originFileObj);
+        reader.onload = () => resolve(reader.result);
+      });
+    }
+    const imgWindow = window.open(src);
+    imgWindow?.document.write(`<img src='${src}' style="max-width: 100%;"/>`);
+  };
 
   return (
     <Modal
-      title="Product Information"
+      title="Tour Information"
       open={true}
       onOk={handleOk}
       onCancel={handleCancel}
@@ -162,100 +149,212 @@ const EditProduct = ({
         form={form}
         layout="vertical"
         initialValues={{
-          title: selectedProduct.title,
-          category: selectedProduct.category,
-          price: selectedProduct.price,
-          color: selectedProduct.color,
-          brand: selectedProduct.brand,
-          quantity: selectedProduct.quantity,
-          description: selectedProduct.description,
-          status: selectedProduct.status,
-          discount: selectedProduct.discount,
-          slug: selectedProduct.slug,
-          sku: selectedProduct.sku,
+          id: selected._id,
+          tourName: selected.tourName,
+          capacity: selected.capacity,
+          price: selected.price,
+          startDateBooking: moment(selected.startDateBooking),
+          endDateBooking: moment(selected.endDateBooking),
+          duration: selected.duration,
+          description: selected.description,
+          status: selected.status,
+          inforLocation: selected.inforLocation?.destination || [],
+          transportationMethod: selected.transportationMethod || [],
+          startDestination: selected.inforLocation.startDestination,
+          endDestination: selected.inforLocation.endDestination,
         }}
       >
-        <Form.Item label="Product ID">
-          <Input value={selectedProduct._id} disabled />
-        </Form.Item>
-
-        <Form.Item label="Title" name="title" rules={[{ required: true }]}>
-          <Input />
-        </Form.Item>
-
-        <Form.Item label="Slug" name="slug" rules={[{ required: true }]}>
-          <Input />
-        </Form.Item>
-
-        <Form.Item label="Sku" name="sku" rules={[{ required: true }]}>
-          <Input />
+        <Form.Item label="Tour ID">
+          <Input value={selected._id} disabled />
         </Form.Item>
 
         <Form.Item
-          label="Category"
-          name="category"
+          label="Tour Name"
+          name="tourName"
           rules={[{ required: true }]}
         >
-          <Select>
-            <Select.Option value="men's clothing">men's clothing</Select.Option>
-            <Select.Option value="women's clothing">
-              women's clothing
-            </Select.Option>
-            <Select.Option value="electronics">electronics</Select.Option>
-            <Select.Option value="jewelery">jewelery</Select.Option>
-            <Select.Option value="toy">Toy</Select.Option>
-          </Select>
-        </Form.Item>
-
-        <Form.Item label="Price" name="price" rules={[{ required: true }]}>
-          <Input type="number" min={0} />
-        </Form.Item>
-
-        <Form.Item label="Discount" name="discount">
-          <Input type="number" min={0} />
-        </Form.Item>
-
-        <Form.Item label="Color" name="color">
-          <Select>
-            {colors.map((item, index) => (
-              <Select.Option key={index} value={item}>
-                {item}
-              </Select.Option>
-            ))}
-          </Select>
+          <Input placeholder="Enter Tour Name" />
         </Form.Item>
 
         <Form.Item
-          label="Quantity"
-          name="quantity"
-          rules={[{ required: true }]}
+          label="Capacity"
+          name="capacity"
+          rules={[{ required: true, message: "Please input the capacity!" }]}
         >
-          <Input type="number" min={0} />
+          <Input type="number" min={1} placeholder="Number of People" />
         </Form.Item>
 
-        <Form.Item label="Brand" name="brand" rules={[{ required: true }]}>
-          <Input />
+        <Form.Item
+          label="Price ( $ )"
+          name="price"
+          rules={[{ required: true, message: "Please input the price!" }]}
+        >
+          <Input type="number" min={0} placeholder="Enter Price" />
         </Form.Item>
 
-        <Form.Item label="Status" name="status">
-          <Select>
-            <Select.Option value="available">Available</Select.Option>
-            <Select.Option value="out_of_stock">Out of stock</Select.Option>
-            <Select.Option value="discontinued">Discontinued</Select.Option>
-            <Select.Option value="pre_order">Pre-order</Select.Option>
+        <Form.Item
+          label="Start Date"
+          name="startDateBooking"
+          rules={[{ required: true, message: "Please input the start date!" }]}
+        >
+          <DatePicker showTime style={{ width: "100%" }} />
+        </Form.Item>
+
+        <Form.Item
+          label="End Date"
+          name="endDateBooking"
+          rules={[{ required: true, message: "Please input the end date!" }]}
+        >
+          <DatePicker showTime style={{ width: "100%" }} />
+        </Form.Item>
+
+        <Form.Item
+          label="Duration"
+          name="duration"
+          rules={[{ required: true, message: "Please input the duration!" }]}
+        >
+          <Input placeholder="e.g., 3 days 2 nights" />
+        </Form.Item>
+
+        <Form.Item label="Location" name="inforLocation">
+          <Select mode="tags" placeholder="Enter destinations">
+            <Option value="Hà Nội">TP Hà Nội</Option>
+            <Option value="SaPa">SaPa</Option>
+            <Option value="Cà Mau">Cà Mau</Option>
+            <Option value="Đà Lạt">Đà Lạt</Option>
+            <Option value="TP Hồ Chí Minh">TP Hồ Chí Minh</Option>
+            <Option value="TP Đà Nẵng">TP Đà Nẵng</Option>
+            <Option value="Hạ Long">Hạ Long</Option>
+            <Option value="Nha Trang">Nha Trang</Option>
+            <Option value="Phan Thiết">Phan Thiết</Option>
+          </Select>
+        </Form.Item>
+
+        <Form.Item label="Start Destination" name="startDestination">
+          <Select placeholder="Enter startDestination">
+            <Option value="Hà Nội">TP Hà Nội</Option>
+            <Option value="SaPa">SaPa</Option>
+            <Option value="Cà Mau">Cà Mau</Option>
+            <Option value="Đà Lạt">Đà Lạt</Option>
+            <Option value="TP Hồ Chí Minh">TP Hồ Chí Minh</Option>
+            <Option value="TP Đà Nẵng">TP Đà Nẵng</Option>
+            <Option value="Hạ Long">Hạ Long</Option>
+            <Option value="Nha Trang">Nha Trang</Option>
+            <Option value="Phan Thiết">Phan Thiết</Option>
+          </Select>
+        </Form.Item>
+
+        <Form.Item label="End Destination" name="endDestination">
+          <Select placeholder="Enter end destination">
+            <Option value="Hà Nội">TP Hà Nội</Option>
+            <Option value="SaPa">SaPa</Option>
+            <Option value="Cà Mau">Cà Mau</Option>
+            <Option value="Đà Lạt">Đà Lạt</Option>
+            <Option value="TP Hồ Chí Minh">TP Hồ Chí Minh</Option>
+            <Option value="TP Đà Nẵng">TP Đà Nẵng</Option>
+            <Option value="Hạ Long">Hạ Long</Option>
+            <Option value="Nha Trang">Nha Trang</Option>
+            <Option value="Phan Thiết">Phan Thiết</Option>
+          </Select>
+        </Form.Item>
+
+        <Form.Item label="Transportation Method" name="transportationMethod">
+          <Select mode="tags" placeholder="Enter transportation methods">
+            <Option value="Airplane">Airplane</Option>
+            <Option value="Bus">Bus</Option>
+            <Option value="Motobike">Motobike</Option>
+            <Option value="Train">Train</Option>
+            <Option value="Hiking">Hiking</Option>
+            <Option value="Fly">Fly</Option>
+            <Option value="Walk">Walk</Option>
           </Select>
         </Form.Item>
 
         <Form.Item label="Description" name="description">
-          <Input.TextArea />
+          <Input.TextArea rows={4} placeholder="Enter description" />
         </Form.Item>
 
-        <Form.Item label="Image">
-          <Input type="file" accept="image/*" onChange={handleImageUpload} />
-          {newImage && <img src={newImage} alt="Product" width={100} />}
+        <Form.Item
+          label="Status"
+          name="status"
+          rules={[{ required: true, message: "Please select a status!" }]}
+        >
+          <Select placeholder="Select Status">
+            <Select.Option value="available">Available</Select.Option>
+            <Select.Option value="occupied">Occupied</Select.Option>
+            <Select.Option value="unavailable">Unavailable</Select.Option>
+          </Select>
         </Form.Item>
+
+        <Form.Item
+          label={
+            <div>
+              <span className="text-red-500">* </span>
+              <span>Avatar</span>
+            </div>
+          }
+          name="avatar"
+          rules={[
+            {
+              validator: (_, value) => {
+                // Kiểm tra nếu danh sách file (avatar) trống
+                if (avatar.length === 0) {
+                  return Promise.reject(new Error("Please upload an avatar!"));
+                }
+                return Promise.resolve();
+              },
+            },
+          ]}
+        >
+          <ImgCrop rotationSlider>
+            <Upload
+              listType="picture-card"
+              fileList={avatar} // Sử dụng state avatar
+              maxCount={1} // Chỉ cho phép tải lên 1 ảnh
+              onPreview={onPreview}
+              onChange={handleAvatarChange} // Cập nhật danh sách avatar
+              beforeUpload={() => false} // Ngăn chặn tải lên ngay lập tức
+            >
+              {avatar.length < 1 && (
+                <div>
+                  <PlusOutlined />
+                  <div style={{ marginTop: 8 }}>Upload</div>
+                </div>
+              )}
+            </Upload>
+          </ImgCrop>
+        </Form.Item>
+
+        <Form.Item label="Picture" name="picture">
+          <Upload
+            listType="picture-card"
+            fileList={fileList}
+            onPreview={handlePreview}
+            onChange={({ fileList: newFileList }) => setFileList(newFileList)}
+            beforeUpload={(file) => {
+              setFileList([...fileList, file]);
+              return false;
+            }}
+          >
+            {fileList.length >= 10 ? null : uploadButton}
+          </Upload>
+        </Form.Item>
+
+        {previewImage && (
+          <Image
+            wrapperStyle={{
+              display: "none",
+            }}
+            preview={{
+              visible: previewOpen,
+              onVisibleChange: (visible) => setPreviewOpen(visible),
+              afterOpenChange: (visible) => !visible && setPreviewImage(""),
+            }}
+            src={previewImage}
+          />
+        )}
       </Form>
-      {/* <ToastContainer /> */}
+      <ToastContainer />
     </Modal>
   );
 };

@@ -1,60 +1,72 @@
 import React, { useEffect, useState } from "react";
-import { Table, Dropdown, Menu, Space, Select, Form } from "antd";
+import { Table, Dropdown, Menu, Space, Select, Form, Popconfirm } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import ModalPromotion from "./modalPromotion";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector, useDispatch } from "react-redux";
+import { fetchPromotion } from "../../Redux/Slide/promotionSlice";
 import { fetchAllHotel } from "../../Redux/Slide/allHotelSlice";
 import { apiDelete, apiGet } from "../../API/APIService";
 
 const { Option } = Select;
 
 const PromotionPage = () => {
-  const [token, setToken] = useState("");
   const [selectedPromotion, setSelectedPromotion] = useState([]);
   const [modal, setModal] = useState(false);
-  const [dataPromotion, setFilterRooms] = useState([]);
 
   const dispatch = useDispatch();
 
-  const { allHotels, statusAllHotels, errorAllHotels } = useSelector(
-    (state) => state.allHotels
+  const { promotion, statusPromotion, errorPromotion } = useSelector(
+    (state) => state.promotion
   );
 
+  console.log(promotion);
+
+  const openModal = (xxx) => {
+    setModal(true);
+    setSelectedPromotion(xxx);
+  };
+
   useEffect(() => {
-    if (statusAllHotels === "idle") {
+    if (statusPromotion === "idle") {
+      dispatch(fetchPromotion());
       dispatch(fetchAllHotel());
     }
-  }, [dispatch, statusAllHotels]);
+  }, [dispatch, statusPromotion]);
 
-  if (statusAllHotels === "loading") return <p>Loading...</p>;
-  if (statusAllHotels === "failed") return <p>Error: {errorAllHotels}</p>;
+  if (statusPromotion === "loading") return <p>Loading...</p>;
+  if (statusPromotion === "failed") return <p>Error: {errorPromotion}</p>;
 
   const menu = (record) => (
     <Menu>
       <Menu.Item key="0">
-        {/* <button onClick={() => openModal(record)}>Edit</button> */}
+        <button onClick={() => openModal(record)}>Edit</button>
       </Menu.Item>
       <Menu.Divider />
-      <Menu.Item key="2">
-        {/* <button onClick={() => deletePromotion(record)}>Delete</button> */}
+      <Menu.Item key="1">
+        <Popconfirm
+          title="Delete the promotion"
+          description="Are you sure to delete this promotion?"
+          onConfirm={() => confirm(record)}
+          // onCancel={cancel}
+          okText="Yes"
+          cancelText="No"
+        >
+          <button className="text-red-500">Delete</button>
+        </Popconfirm>
       </Menu.Item>
     </Menu>
   );
 
-  const handleRooms = async (value) => {
-    try {
-      const response = await apiGet("get-room-by-hotelId", { hotelId: value });
-
-      if (Array.isArray(response.data)) {
-        setFilterRooms(response.data);
-      } else {
-        setFilterRooms([]);
-      }
-    } catch (error) {
-      console.log(error);
-    }
+  const truncateStyle = {
+    display: "-webkit-box",
+    WebkitLineClamp: 3,
+    WebkitBoxOrient: "vertical",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    maxHeight: "calc(1.2em * 3)",
+    lineHeight: "1.2em",
   };
 
   const columns = [
@@ -64,26 +76,62 @@ const PromotionPage = () => {
       key: "id",
       fixed: "left",
       // width: 100,
-      render: (text, record) => <div>{record._id}</div>,
+      render: (text, record) => (
+        <div style={{ width: "200px" }}>{record._id}</div>
+      ),
     },
     {
       title: "Code",
       dataIndex: "code",
       key: "code",
-      render: (text) => <div>{text}</div>,
+      render: (text) => <div style={{ width: "100px" }}>{text}</div>,
+    },
+    {
+      title: "Object Type",
+      dataIndex: "objectType",
+      key: "objectType",
+      render: (text) => <div style={{ width: "100px" }}>{text}</div>,
+    },
+    {
+      title: "Object Name",
+      dataIndex: "objectType",
+      key: "objectType",
+      render: (text, record) => (
+        <div style={{ width: "100px" }}>
+          {record?.objectId?.hotelName ? record?.objectId?.hotelName : "ALL"}
+        </div>
+      ),
     },
     {
       title: "Description",
       dataIndex: "description",
       key: "description",
-      render: (text) => <div>{text}</div>,
+      render: (text, record) => (
+        <div style={{ width: 150 }}>
+          <p style={truncateStyle}>{record.description}</p>
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              alert(record.description);
+            }}
+          >
+            Read more
+          </a>
+        </div>
+      ),
     },
     {
-      title: "Image",
-      dataIndex: "image",
-      key: "image",
-      render: (text) => (
-        <img src={text} alt="" style={{ width: "100px", height: "100px" }} />
+      title: "Imagine",
+      dataIndex: "imgPromotion",
+      render: (text, record) => (
+        <div style={{ width: 100 }}>
+          <img
+            src={record.imgPromotion}
+            alt="SALES"
+            style={{ width: "100px", height: "100px" }}
+          />
+        </div>
       ),
     },
     {
@@ -102,47 +150,32 @@ const PromotionPage = () => {
       title: "Discount Type",
       dataIndex: "discountType",
       key: "discountType",
-      render: (text) => <div>{text}</div>,
+      render: (text) => <div style={{ width: "100px" }}>{text}</div>,
     },
     {
       title: "Discount Value",
       dataIndex: "discountValue",
       key: "discountValue",
-      render: (text) => <div>{text}</div>,
+      render: (text) => <div style={{ width: "100px" }}>{text}</div>,
     },
     {
-      title: "Min Order Value",
-      dataIndex: "minimumOrderValue",
-      key: "minimumOrderValue",
+      title: "Minimum Value",
+      dataIndex: "minimumValue",
+      key: "minimumValue",
       width: 150,
-      render: (text) => <div>{text}</div>,
+      render: (text) => <div style={{ width: "100px" }}>{text}</div>,
     },
     {
       title: "Max Discount",
       dataIndex: "maxDiscount",
       key: "maxDiscount",
-      width: 150,
-      render: (text) => <div>{text}</div>,
-    },
-    {
-      title: "Applicable Products",
-      dataIndex: "applicableProducts",
-      key: "applicableProducts",
-      width: 180,
-      render: (text, record) => (
-        <div>
-          {record.applicableProducts.map((item, index) => (
-            <div key={index}>- {item.title}</div>
-          ))}
-        </div>
-      ),
+      render: (text) => <div style={{ width: "100px" }}>{text}</div>,
     },
     {
       title: "Applicable Categories",
       dataIndex: "applicableCategories",
       key: "applicableCategories",
-      width: 200,
-      render: (text) => <div>{text}</div>,
+      render: (text) => <div style={{ width: "150px" }}>{text}</div>,
     },
     {
       title: "Status",
@@ -171,25 +204,13 @@ const PromotionPage = () => {
 
   return (
     <div>
-      <Form layout="vertical">
-        <Form.Item>
-          <Select onChange={handleRooms} placeholder="Select Hotel">
-            <Option value="">Select Room</Option>
-            {allHotels.map((item, index) => (
-              <Option key={index} value={item._id}>
-                {item.hotelName} - {item._id}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-      </Form>
       <Table
         columns={columns}
-        dataSource={dataPromotion}
-        scroll={{ x: true, y: 950 }}
+        dataSource={promotion.data}
+        scroll={{ x: true }}
         // style={{ maxWidth: 1080 }}
+        sticky={{ offsetHeader: 35 }}
         rowKey="id"
-        sticky
         rowClassName={(record) => {
           switch (record.status) {
             case "active":

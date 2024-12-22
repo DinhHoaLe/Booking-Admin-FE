@@ -9,7 +9,7 @@ const handleResponse = async (response) => {
   return response.json();
 };
 
-// Hàm GET Paganition
+// Hàm GET Pagination
 export const apiGet = async (endpoint, params = {}) => {
   const url = new URL(`${BASE_URL}/${endpoint}`);
   Object.keys(params).forEach((key) =>
@@ -102,6 +102,28 @@ export const apiPost = async (endpoint, body = {}) => {
     body: JSON.stringify(body),
   });
 
+  if (response.status === 401) {
+    const refreshResponse = await fetch(`${BASE_URL}/refresh-token-admin`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+
+    if (refreshResponse.ok) {
+      const retryResponse = await fetch(`${BASE_URL}/${endpoint}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+        credentials: "include",
+      });
+      return handleResponse(retryResponse);
+    }
+  }
+
   return handleResponse(response);
 };
 
@@ -159,7 +181,33 @@ export const apiPatch = async (endpoint, body = {}) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(body),
+    credentials: "include",
   });
+
+  if (response.status === 401) {
+    const refreshResponse = await fetch(`${BASE_URL}/refresh-token-admin`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+
+    if (refreshResponse.ok) {
+      const retryResponse = await fetch(`${BASE_URL}/${endpoint}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+        credentials: "include",
+      });
+
+      if (retryResponse.ok) {
+        return handleResponse(retryResponse);
+      }
+    }
+  }
 
   return handleResponse(response);
 };
@@ -206,6 +254,28 @@ export const apiDelete = async (endpoint) => {
     },
     credentials: "include",
   });
+
+  if (response.status === 401) {
+    const refreshResponse = await fetch(`${BASE_URL}/refresh-token-admin`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+
+    if (refreshResponse.ok) {
+      const retryResponse = await fetch(`${BASE_URL}/${endpoint}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      return handleResponse(retryResponse);
+    }
+  }
 
   return handleResponse(response);
 };

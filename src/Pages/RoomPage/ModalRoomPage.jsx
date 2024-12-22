@@ -36,61 +36,61 @@ const ModalRoomPage = ({ openModal, selected }) => {
   const [isChangeAvatar, setIsChangeAvatar] = useState(false);
 
   console.log(selected);
-  // const [avatar, setAvatar] = useState(
-  //   selected.imgRoom?.avatar
-  //     ? [
-  //         {
-  //           uid: "-1",
-  //           name: selected._id,
-  //           status: "done",
-  //           url: selected.imgRoom.avatar,
-  //         },
-  //       ]
-  //     : []
-  // );
+  const [avatar, setAvatar] = useState(
+    selected.imgRoom?.avatar
+      ? [
+          {
+            uid: "-1",
+            name: selected._id,
+            status: "done",
+            url: selected.imgRoom.avatar,
+          },
+        ]
+      : []
+  );
 
-  // const [imgList, setImgList] = useState(
-  //   selected.imgRoom?.img
-  //     ? selected.imgRoom.img.map((url, index) => ({
-  //         uid: `-${index}`,
-  //         name: `Image ${index + 1}`,
-  //         status: "done",
-  //         url,
-  //       }))
-  //     : []
-  // );
+  const [imgList, setImgList] = useState(
+    selected.imgRoom?.img
+      ? selected.imgRoom.img.map((url, index) => ({
+          uid: `-${index}`,
+          name: `Image ${index + 1}`,
+          status: "done",
+          url,
+        }))
+      : []
+  );
 
   const handleCancel = () => {
     openModal(false);
   };
 
-  // const handleAvatarChange = ({ fileList }) => {
-  //   const updatedFileList = fileList.slice(-1);
-  //   setIsChangeAvatar(true);
-  //   // setAvatar(updatedFileList);
-  // };
+  const handleAvatarChange = ({ fileList }) => {
+    const updatedFileList = fileList.slice(-1);
+    setIsChangeAvatar(true);
+    setAvatar(updatedFileList);
+  };
 
-  // const handlePreviewImg = async (file) => {
-  //   setPreviewImage(file.url || file.preview);
-  //   setPreviewOpen(true);
-  // };
+  const handlePreviewImg = async (file) => {
+    setPreviewImage(file.url || file.preview);
+    setPreviewOpen(true);
+  };
 
-  // const handlePreviewAvatar = async (file) => {
-  //   let src = file.url;
-  //   if (!src) {
-  //     src = await new Promise((resolve) => {
-  //       const reader = new FileReader();
-  //       reader.readAsDataURL(file.originFileObj);
-  //       reader.onload = () => resolve(reader.result);
-  //     });
-  //   }
-  //   const imgWindow = window.open(src);
-  //   imgWindow?.document.write(`<img src='${src}' style="max-width: 100%;"/>`);
-  // };
+  const handlePreviewAvatar = async (file) => {
+    let src = file.url;
+    if (!src) {
+      src = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file.originFileObj);
+        reader.onload = () => resolve(reader.result);
+      });
+    }
+    const imgWindow = window.open(src);
+    imgWindow?.document.write(`<img src='${src}' style="max-width: 100%;"/>`);
+  };
 
-  // const handleImgChange = ({ fileList }) => {
-  //   setImgList(fileList);
-  // };
+  const handleImgChange = ({ fileList }) => {
+    setImgList(fileList);
+  };
 
   const handleOk = async () => {
     const toastId = toast.loading("Creating...");
@@ -99,11 +99,11 @@ const ModalRoomPage = ({ openModal, selected }) => {
 
       const formData = new FormData();
 
-      // if (isChangeAvatar) {
-      //   if (avatar.length > 0 && avatar[0].originFileObj) {
-      //     formData.append("imgRoom[avatar]", avatar[0].originFileObj);
-      //   }
-      // }
+      if (isChangeAvatar) {
+        if (avatar.length > 0 && avatar[0].originFileObj) {
+          formData.append("avatar", avatar[0].originFileObj);
+        }
+      }
 
       // imgList.forEach((file, index) => {
       //   if (file.originFileObj) {
@@ -132,7 +132,7 @@ const ModalRoomPage = ({ openModal, selected }) => {
         type: "success",
         isLoading: false,
         autoClose: 1000,
-        // onClose: () => (navigate("/admin-page/product"), openModal(false)),
+        onClose: () => (navigate("/admin-page/product"), openModal(false)),
       });
     } catch (error) {
       console.error("Error updating product:", error);
@@ -249,10 +249,6 @@ const ModalRoomPage = ({ openModal, selected }) => {
           <InputNumber min={1} style={{ width: "100%" }} />
         </Form.Item>
 
-        <Form.Item label="Children" name="children">
-          <InputNumber min={0} style={{ width: "100%" }} />
-        </Form.Item>
-
         <Form.Item label="Dimensions" name="dimensions">
           <Input placeholder="e.g., 10x12 ft" />
         </Form.Item>
@@ -280,7 +276,7 @@ const ModalRoomPage = ({ openModal, selected }) => {
           </Select>
         </Form.Item>
 
-        {/* <Form.Item
+        <Form.Item
           label={
             <div>
               <span className="text-red-500">* </span> Avatar
@@ -305,9 +301,9 @@ const ModalRoomPage = ({ openModal, selected }) => {
               )}
             </Upload>
           </ImgCrop>
-        </Form.Item> */}
+        </Form.Item>
 
-        {/* <Form.Item label="Additional Images" name="imgRoom">
+        <Form.Item label="Additional Images" name="imgRoom">
           <Upload
             listType="picture-card"
             fileList={imgList}
@@ -323,7 +319,7 @@ const ModalRoomPage = ({ openModal, selected }) => {
               </div>
             )}
           </Upload>
-        </Form.Item> */}
+        </Form.Item>
       </Form>
     </Modal>
   );

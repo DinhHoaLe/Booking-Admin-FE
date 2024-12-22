@@ -1,116 +1,102 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Input, Select, Form, Image, DatePicker } from "antd";
+import {
+  Modal,
+  Input,
+  Select,
+  Form,
+  Image,
+  DatePicker,
+  InputNumber,
+  Upload,
+} from "antd";
 import { ToastContainer, toast } from "react-toastify";
+import { PlusOutlined } from "@ant-design/icons";
+import ImgCrop from "antd-img-crop";
 import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
+import { fetchAllHotel } from "../../Redux/Slide/allHotelSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { apiPatchFormData } from "../../API/APIService";
 
-const ModalPromotion = ({
-  setModal,
-  selected,
-  callApi,
-  callRefreshToken,
-  token,
-  setToken,
-  setCookie,
-}) => {
-  // const { callApi } = useAdminContext();
+const ModalPromotion = ({ setModal, selected }) => {
+  const dispatch = useDispatch();
   const [form] = Form.useForm();
-  const [newImage, setNewImage] = useState(selected.image);
-  const [newUploadImage, setNewUploadImage] = useState();
-  const [dataProducts, setDataProducts] = useState([]);
-  const [selectedProducts, setSelectedProducts] = useState(
-    selected.applicableProducts || []
+  const [avatar, setAvatar] = useState(
+    selected?.imgPromotion
+      ? [
+          {
+            uid: "-1",
+            name: selected._id,
+            status: "done",
+            url: selected.imgPromotion,
+          },
+        ]
+      : []
   );
+  const [isChangeAvatar, setIsChangeAvatar] = useState(false);
+
+  const { allHotels, statusAllHotels, errorAllHotels } = useSelector(
+    (state) => state.allHotels
+  );
+
+  useEffect(() => {
+    if (statusAllHotels === "idle") {
+      dispatch(fetchAllHotel());
+    }
+  }, [dispatch, statusAllHotels]);
+
+  if (statusAllHotels === "loading") return <p>Loading...</p>;
+  if (statusAllHotels === "failed") return <p>Error: {errorAllHotels}</p>;
 
   const handleCancel = () => {
     setModal(false);
   };
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setNewImage(reader.result);
-      };
-      setNewUploadImage(file);
-      reader.readAsDataURL(file);
-    }
+  const handleAvatarChange = ({ fileList }) => {
+    const updatedFileList = fileList.slice(-1);
+    setIsChangeAvatar(true);
+    setAvatar(updatedFileList);
   };
 
-  useEffect(() => {
-    if (!token) {
-      toast.error("Please log in again!", {
-        position: "top-center",
-        autoClose: 1500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-    } else {
-      callApiProducts();
-    }
-  }, [token]);
-
-  const callApiProducts = async () => {
-    try {
-      const req = await fetch("http://localhost:8080/api/v1/products", {
-        method: "GET",
-        "Content-Type": "application/json",
-        authorization: `Bearer ${token}`,
-      });
-      const res = await req.json();
-      setDataProducts(res.data);
-    } catch (error) {
-      console.log("error", error);
-      toast.error("Something went wrong, please try again.", {
-        position: "top-center",
-        autoClose: 1500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
+  const onPreview = async (file) => {
+    let src = file.url;
+    if (!src) {
+      src = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file.originFileObj);
+        reader.onload = () => resolve(reader.result);
       });
     }
-  };
-
-  useEffect(() => {
-    if (!dataProducts) {
-      const toastId = toast.loading("Creating...");
-      return toast.update(toastId, {
-        render: "Loading successful!",
-        type: "success",
-        isLoading: false,
-        autoClose: 3000,
-      });
-    }
-  }, []);
-
-  const handleSelectChange = (value) => {
-    if (value.includes("ALL")) {
-      setSelectedProducts(dataProducts.map((item) => item.title));
-    } else {
-      setSelectedProducts(value);
-    }
+    const imgWindow = window.open(src);
+    imgWindow?.document.write(`<img src='${src}' style="max-width: 100%;"/>`);
   };
 
   const handleOk = async () => {
+    const toastId = toast.loading("Creating...");
     try {
       const values = await form.validateFields(); // Lấy tất cả giá trị từ form
       const formData = new FormData();
-      formData.append("file", newUploadImage); // Thêm tệp vào FormData
+      if (isChangeAvatar) {
+        if (avatar.length > 0 && avatar[0].originFileObj) {
+          formData.append("file", avatar[0].originFileObj);
+        } else {
+          toast.error("Please upload an avatar!");
+          return;
+        }
+      }
+      if (values.objectId) {
+        formData.append("objectId", values.objectId);
+      }
+      formData.append("code", values.code);
       formData.append("status", values.status);
-      formData.append("applicableProducts", values.applicableProducts);
+      formData.append("applicableCategories", values.applicableCategories);
       formData.append("description", values.description);
       formData.append("discountType", values.discountType);
       formData.append("discountValue", values.discountValue);
-      formData.append("minimumOrderValue", values.minimumOrderValue);
+      formData.append("minimumValue", values.minimumValue);
       formData.append("maxDiscount", values.maxDiscount);
+      formData.append("objectType", values.objectType);
+
       formData.append(
         "startDate",
         values.startDate ? moment(selected.startDate) : null
@@ -119,88 +105,19 @@ const ModalPromotion = ({
         "endDate",
         values.endDate ? moment(selected.endDate) : null
       );
-      const req1 = await fetch(
-        `http://localhost:8080/api/v1/promotion/update-promotion/${selected._id}`,
-        {
-          method: "PATCH",
-          headers: {
-            authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        }
+
+      const response = await apiPatchFormData(
+        `edit-promotion/${selected._id}`,
+        formData
       );
 
-      if (req1.status === 403) {
-        console.log("check");
-        const req2 = await callRefreshToken(token);
-        setToken(req2);
-        setCookie("token", req2, 7);
-        if (!req2) throw new Error("Please Log in first!");
-        const req3 = await fetch(
-          `http://localhost:8080/api/v1/admin/update-profile/${selected._id}`,
-          {
-            method: "PATCH",
-            authorization: `Bearer ${req2}`,
-            body: formData,
-          }
-        );
-        if (req3.status === 200) {
-          console.log(req3);
-          const res3 = await req3.json();
-          toast.success(res3.message, {
-            position: "top-center",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: false,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-            onClose: () => setModal(false),
-          });
-          callApi();
-        } else {
-          const res3 = await req3.json();
-          toast.warn(res3.message, {
-            position: "top-center",
-            autoClose: 1500,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          });
-        }
-      }
-      if (req1.status === 200) {
-        console.log(req1);
-        const res3 = await req1.json();
-        toast.success(res3.message, {
-          position: "top-center",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          onClose: () => setModal(false),
-        });
-        callApi();
-      } else {
-        const res3 = await req1.json();
-        toast.warn(res3.message, {
-          position: "top-center",
-          autoClose: 1500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        });
-      }
+      toast.update(toastId, {
+        // Sử dụng toastId
+        render: response.message,
+        type: "success",
+        isLoading: false,
+        autoClose: 1000,
+      });
     } catch (error) {
       console.error("Error : ", error);
       toast.error("Something went wrong, please try again.", {
@@ -216,13 +133,9 @@ const ModalPromotion = ({
     }
   };
 
-  const selectedDataPromotion = selectedProducts.map((item) => item.title);
-  const selectedValuePromotion = selectedProducts.map((item) => item._id);
-  console.log(selectedValuePromotion);
-  console.log(selectedProducts);
   return (
     <Modal
-      title="Customer Information"
+      title="Promotion Information"
       visible={true}
       onOk={handleOk}
       onCancel={handleCancel}
@@ -240,12 +153,13 @@ const ModalPromotion = ({
           status: selected.status,
           endDate: selected.endDate ? moment(selected.endDate) : null,
           startDate: selected.startDate ? moment(selected.startDate) : null,
+          objectId: selected.objectId,
+          objectType: selected.objectType,
           description: selected.description,
           maxDiscount: selected.maxDiscount,
           discountType: selected.discountType,
+          minimumValue: selected.minimumValue,
           discountValue: selected.discountValue,
-          minimumOrderValue: selected.minimumOrderValue,
-          applicableProducts: selectedDataPromotion,
         }}
       >
         <Form.Item label="Promotion ID" name="_id">
@@ -253,11 +167,30 @@ const ModalPromotion = ({
         </Form.Item>
 
         <Form.Item label="Code" name="code">
-          <Input disabled />
+          <Input placeholder="Input Code" />
+        </Form.Item>
+
+        <Form.Item label="Object Type" name="objectType">
+          <Select>
+            <Select.Option value="hotel">Hotel</Select.Option>
+            <Select.Option value="tour">Tour</Select.Option>
+            <Select.Option value="flight">Flight</Select.Option>
+          </Select>
+        </Form.Item>
+
+        <Form.Item label="Object Name" name="objectId">
+          <Select placeholder="Select object" style={{ width: "100%" }}>
+            <Select.Option value="ALL">ALL</Select.Option>
+            {allHotels.map((item, index) => (
+              <Select.Option key={index} value={item._id}>
+                {item.hotelName}
+              </Select.Option>
+            ))}
+          </Select>
         </Form.Item>
 
         <Form.Item label="Description" name="description">
-          <Input />
+          <Input.TextArea />
         </Form.Item>
 
         <Form.Item label="Discount Type" name="discountType">
@@ -267,50 +200,72 @@ const ModalPromotion = ({
           </Select>
         </Form.Item>
 
-        <Form.Item label="Start Date" name="startDate">
-          <DatePicker
+        <Form.Item
+          label="Start Date"
+          name="startDate"
+          rules={[
+            {
+              required: true,
+              message: "Please input the start date!",
+            },
+          ]}
+        >
+          <DatePicker style={{ width: "100%" }} />
+        </Form.Item>
+
+        <Form.Item
+          label="End Date"
+          name="endDate"
+          rules={[
+            {
+              required: true,
+              message: "Please input the end date!",
+            },
+          ]}
+        >
+          <DatePicker style={{ width: "100%" }} />
+        </Form.Item>
+
+        <Form.Item
+          label="Discount Value"
+          name="discountValue"
+          rules={[
+            {
+              required: true,
+              message: "Please input the Discount Value!",
+            },
+          ]}
+        >
+          <InputNumber
+            min={0}
             style={{ width: "100%" }}
-            // defaultValue={
-            //   selected.startDate ? moment(selected.startDate) : null
-            // }
-            // onChange={(date, dateString) => setDateOfBirth(dateString)}
+            placeholder="Input Discount Value"
           />
         </Form.Item>
 
-        <Form.Item label="End Date" name="endDate">
-          <DatePicker
+        <Form.Item label="Minimum Value" name="minimumValue">
+          <InputNumber
+            min={0}
             style={{ width: "100%" }}
-            // defaultValue={selected.endDate ? moment(selected.endDate) : null}
-            // onChange={(date, dateString) => setDateOfBirth(dateString)}
+            placeholder="Input Minimum Value"
           />
-        </Form.Item>
-
-        <Form.Item label="Discount Value" name="discountValue">
-          <Input type="number" />
-        </Form.Item>
-
-        <Form.Item label="Minimum Order Value" name="minimumOrderValue">
-          <Input />
         </Form.Item>
 
         <Form.Item label="Max Discount" name="maxDiscount">
-          <Input />
+          <InputNumber
+            min={0}
+            style={{ width: "100%" }}
+            placeholder="Input Max Discount"
+          />
         </Form.Item>
 
-        <Form.Item label="Applicable Products" name="applicableProducts">
+        <Form.Item label="Applicable Categories" name="applicableCategories">
           <Select
             mode="multiple"
-            placeholder="Select products"
-            onChange={handleSelectChange}
+            placeholder="Select categories"
             style={{ width: "100%" }}
-            value={selectedProducts}
           >
             <Select.Option value="ALL">ALL</Select.Option>
-            {dataProducts.map((item, index) => (
-              <Select.Option key={index} value={item._id}>
-                {item.title}
-              </Select.Option>
-            ))}
           </Select>
         </Form.Item>
 
@@ -323,8 +278,23 @@ const ModalPromotion = ({
         </Form.Item>
 
         <Form.Item label="Image">
-          <Input type="file" accept="image/*" onChange={handleImageUpload} />
-          {newImage && <Image src={newImage} alt="Image" width={100} />}
+          <ImgCrop rotationSlider>
+            <Upload
+              listType="picture-card"
+              fileList={avatar}
+              maxCount={1}
+              onPreview={onPreview}
+              onChange={handleAvatarChange}
+              beforeUpload={() => false}
+            >
+              {avatar.length < 1 && (
+                <div>
+                  <PlusOutlined />
+                  <div style={{ marginTop: 8 }}>Upload</div>
+                </div>
+              )}
+            </Upload>
+          </ImgCrop>
         </Form.Item>
       </Form>
       <ToastContainer />

@@ -11,24 +11,24 @@ import {
 } from "../../Redux/Slide/bookingSlice";
 import { apiDelete } from "../../API/APIService";
 
-const BookingTourPage = () => {
+const EmailSupportPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selected, setSelected] = useState();
   const dispatch = useDispatch();
 
   const { booking, status, error, page, pageSize, total } = useSelector(
-    (state) => state.booking.tour
+    (state) => state.booking.flight
   );
 
   useEffect(() => {
     if (status === "idle") {
-      dispatch(fetchBooking({ page, pageSize, objectType: "tour" }));
+      dispatch(fetchBooking({ page, pageSize, objectType: "flight" }));
     }
   }, [dispatch, status, page, pageSize]);
 
   useEffect(() => {
     return () => {
-      dispatch(resetState({ objectType: "tour" }));
+      dispatch(resetState({ objectType: "flight" }));
     };
   }, [dispatch]);
 
@@ -49,7 +49,7 @@ const BookingTourPage = () => {
       fetchBooking({
         page: newPage,
         pageSize: newPageSize,
-        objectType: "tour",
+        objectType: "flight",
       })
     );
   };
@@ -130,119 +130,7 @@ const BookingTourPage = () => {
       sorter: (a, b) => a.id - b.id,
       render: (text, record) => <div>{record._id}</div>,
     },
-    // {
-    //   title: "Name",
-    //   dataIndex: "hotelName",
-    //   key: "hotelName",
-    //   fixed: "left",
-    //   // filters: filtersName,
-    //   onFilter: (value, record) => record.hotelName.indexOf(value) === 0,
-    //   sorter: (a, b) => a.hotelName.localeCompare(b.hotelName),
-    //   render: (text, record) => (
-    //     <div style={{ width: 250 }}>{record.hotelName}</div>
-    //   ),
-    // },
-    // {
-    //   title: "Category",
-    //   dataIndex: "category",
-    //   key: "category",
-    //   // filters: filtersCategory,
-    //   onFilter: (value, record) => record.category.indexOf(value) === 0,
-    //   sorter: (a, b) => a.category.localeCompare(b.category),
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>{record.category}</div>
-    //   ),
-    // },
-    // {
-    //   title: "Available Rooms",
-    //   dataIndex: "availableRooms",
-    //   key: "availableRooms",
-    //   // filters: filtersCategory,
-    //   onFilter: (value, record) => record.availableRooms.indexOf(value) === 0,
-    //   sorter: (a, b) => a.availableRooms.localeCompare(b.availableRooms),
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>{record.availableRooms}</div>
-    //   ),
-    // },
-    // {
-    //   title: "Image",
-    //   dataIndex: "image",
-    //   key: "image",
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>
-    //       <img
-    //         src={record.imgHotel}
-    //         alt={record.title}
-    //         style={{ width: "100px", height: "100px" }}
-    //       />
-    //     </div>
-    //   ),
-    // },
-    // {
-    //   title: "Price ( $ )",
-    //   dataIndex: "price",
-    //   key: "price",
-    //   sorter: (a, b) => a.priceAveragePerNight - b.priceAveragePerNight,
-    //   render: (text, record) => (
-    //     <div style={{ width: 80 }}>{record.priceAveragePerNight}</div>
-    //   ),
-    // },
-    // {
-    //   title: "Discount",
-    //   dataIndex: "discount",
-    //   key: "discount",
-    //   sorter: (a, b) => a.discount - b.discount,
-    //   render: (text, record) => (
-    //     <div style={{ width: 80 }}>{record.discount}</div>
-    //   ),
-    // },
-    // {
-    //   title: "City",
-    //   dataIndex: "city",
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>{record.address.city}</div>
-    //   ),
-    // },
-    // {
-    //   title: "District",
-    //   dataIndex: "district",
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>{record.address.district}</div>
-    //   ),
-    // },
-    // {
-    //   title: "Ward",
-    //   dataIndex: "ward",
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>{record.address.ward}</div>
-    //   ),
-    // },
-    // {
-    //   title: "Street",
-    //   dataIndex: "street",
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>{record.address.street}</div>
-    //   ),
-    // },
-    // {
-    //   title: "Description",
-    //   dataIndex: "description",
-    //   key: "description",
-    //   render: (text, record) => (
-    //     <div style={{ width: 200 }}>
-    //       <p style={truncateStyle}>{record.detailHotel}</p>
-    //       <a
-    //         href="#"
-    //         onClick={(e) => {
-    //           e.preventDefault();
-    //           alert(record.detailHotel);
-    //         }}
-    //       >
-    //         Read more
-    //       </a>
-    //     </div>
-    //   ),
-    // },
+
     {
       title: "Status",
       key: "status",
@@ -307,4 +195,4 @@ const BookingTourPage = () => {
   );
 };
 
-export default BookingTourPage;
+export default EmailSupportPage;

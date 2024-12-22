@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Table, Modal, Dropdown, Menu, Space, Tabs } from "antd";
-import ModalProduct from "./ModalTourPage";
+import { Table, Modal, Dropdown, Menu, Space, Tabs, Popconfirm } from "antd";
+import ModalTourPage from "./ModalTourPage";
 import { DownOutlined } from "@ant-design/icons";
-import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchTour, setPagination } from "../../Redux/Slide/tourSlice";
+import { apiDelete } from "../../API/APIService";
+import ModalReviewTourPage from "./ModalReviewTourPage";
 
 const TourPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState();
+  const [isModalReviewOpen, setIsModalReviewOpen] = useState(false);
+  const [selected, setSelected] = useState();
   const [dataTour, setDataTour] = useState([]);
   const dispatch = useDispatch();
   const { tours, statusTour, errorTour, page, pageSize, total } = useSelector(
@@ -24,8 +27,6 @@ const TourPage = () => {
     }
   }, [dispatch, statusTour, page, pageSize]);
 
-  console.log(dataTour);
-
   const handleTableChange = (pagination) => {
     const newPage = pagination.page;
     const newPageSize = pagination.pageSize;
@@ -39,7 +40,12 @@ const TourPage = () => {
 
   const openModal = (product) => {
     setIsModalOpen(true);
-    setSelectedProduct(product);
+    setSelected(product);
+  };
+
+  const openModalReview = (product) => {
+    setIsModalReviewOpen(true);
+    setSelected(product);
   };
 
   const filtersID = dataTour.map((item) => ({
@@ -52,11 +58,7 @@ const TourPage = () => {
     value: item.tourName.toString(),
   }));
 
-  // const filtersCategory = [
-  //   { text: "Hotel", value: "hotel" },
-  //   { text: "Resort", value: "resort" },
-  //   { text: "Homestay", value: "homestay" },
-  // ];
+  console.log(tours);
 
   const filtersStatus = [
     { text: "Available", value: "available" },
@@ -65,24 +67,54 @@ const TourPage = () => {
     { text: "Pre order", value: "pre_order" },
   ];
 
-  // const truncateStyle = {
-  //   display: "-webkit-box",
-  //   WebkitLineClamp: 3,
-  //   WebkitBoxOrient: "vertical",
-  //   overflow: "hidden",
-  //   textOverflow: "ellipsis",
-  //   maxHeight: "calc(1.2em * 3)",
-  //   lineHeight: "1.2em",
-  // };
+  const truncateStyle = {
+    display: "-webkit-box",
+    WebkitLineClamp: 3,
+    WebkitBoxOrient: "vertical",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    maxHeight: "calc(1.2em * 3)",
+    lineHeight: "1.2em",
+  };
+
+  const confirm = async (xxx) => {
+    try {
+      const response = await apiDelete(`delete-tour/${xxx._id}`);
+      toast.success(response.message, {
+        position: "top-center",
+        autoClose: 1000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const menu = (record) => (
     <Menu>
       <Menu.Item key="0">
         <button onClick={() => openModal(record)}>Edit</button>
       </Menu.Item>
-      <Menu.Divider />
       <Menu.Item key="1">
-        {/* <button onClick={() => delProduct(record)}>Delete</button> */}
+        <button onClick={() => openModalReview(record)}>Review</button>
+      </Menu.Item>
+      <Menu.Divider />
+      <Menu.Item key="2">
+        <Popconfirm
+          title="Delete the tour"
+          description="Are you sure to delete this tour?"
+          onConfirm={() => confirm(record)}
+          // onCancel={cancel}
+          okText="Yes"
+          cancelText="No"
+        >
+          <button className="text-red-500">Delete</button>
+        </Popconfirm>
       </Menu.Item>
     </Menu>
   );
@@ -121,31 +153,20 @@ const TourPage = () => {
         <div style={{ width: 100 }}>{record.capacity}</div>
       ),
     },
-    // {
-    //   title: "Available Rooms",
-    //   dataIndex: "availableRooms",
-    //   key: "availableRooms",
-    //   // filters: filtersCategory,
-    //   onFilter: (value, record) => record.availableRooms.indexOf(value) === 0,
-    //   sorter: (a, b) => a.availableRooms.localeCompare(b.availableRooms),
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>{record.availableRooms}</div>
-    //   ),
-    // },
-    // {
-    //   title: "Image",
-    //   dataIndex: "image",
-    //   key: "image",
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>
-    //       <img
-    //         src={record.imgHotel}
-    //         alt={record.title}
-    //         style={{ width: "100px", height: "100px" }}
-    //       />
-    //     </div>
-    //   ),
-    // },
+    {
+      title: "Image",
+      dataIndex: "image",
+      key: "image",
+      render: (text, record) => (
+        <div style={{ width: 100 }}>
+          <img
+            src={record.imgTour.avatar}
+            alt={record.title}
+            style={{ width: "100px", height: "100px" }}
+          />
+        </div>
+      ),
+    },
     {
       title: "Price ( $ )",
       dataIndex: "price",
@@ -153,62 +174,112 @@ const TourPage = () => {
       sorter: (a, b) => a.price - b.price,
       render: (text, record) => <div style={{ width: 80 }}>{record.price}</div>,
     },
-    // {
-    //   title: "Discount",
-    //   dataIndex: "discount",
-    //   key: "discount",
-    //   sorter: (a, b) => a.discount - b.discount,
-    //   render: (text, record) => (
-    //     <div style={{ width: 80 }}>{record.discount}</div>
-    //   ),
-    // },
-    // {
-    //   title: "City",
-    //   dataIndex: "city",
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>{record.address.city}</div>
-    //   ),
-    // },
-    // {
-    //   title: "District",
-    //   dataIndex: "district",
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>{record.address.district}</div>
-    //   ),
-    // },
-    // {
-    //   title: "Ward",
-    //   dataIndex: "ward",
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>{record.address.ward}</div>
-    //   ),
-    // },
-    // {
-    //   title: "Street",
-    //   dataIndex: "street",
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>{record.address.street}</div>
-    //   ),
-    // },
-    // {
-    //   title: "Description",
-    //   dataIndex: "description",
-    //   key: "description",
-    //   render: (text, record) => (
-    //     <div style={{ width: 200 }}>
-    //       <p style={truncateStyle}>{record.detailHotel}</p>
-    //       <a
-    //         href="#"
-    //         onClick={(e) => {
-    //           e.preventDefault();
-    //           alert(record.detailHotel);
-    //         }}
-    //       >
-    //         Read more
-    //       </a>
-    //     </div>
-    //   ),
-    // },
+    {
+      title: "Start Date",
+      dataIndex: "startDateBooking",
+      key: "startDateBooking",
+      sorter: (a, b) => a.startDateBooking - b.startDateBooking,
+      render: (text, record) => (
+        <div style={{ width: 80 }}>{record.startDateBooking.slice(0, 10)}</div>
+      ),
+    },
+    {
+      title: "End Date",
+      dataIndex: "endDateBooking",
+      key: "endDateBooking",
+      sorter: (a, b) => a.endDateBooking - b.endDateBooking,
+      render: (text, record) => (
+        <div style={{ width: 80 }}>{record.endDateBooking.slice(0, 10)}</div>
+      ),
+    },
+    {
+      title: "Location",
+      dataIndex: "inforLocation",
+      render: (text, record) => {
+        return record.inforLocation.destination.map((item, index) => (
+          <div key={index} style={{ width: 100 }}>
+            {index + 1} - {item}
+          </div>
+        ));
+      },
+    },
+    {
+      title: "Start Destination",
+      dataIndex: "startDestination",
+      render: (text, record) => (
+        <div style={{ width: 100 }}>
+          {record.inforLocation.startDestination}
+        </div>
+      ),
+    },
+    {
+      title: "End Destination",
+      dataIndex: "endDestination",
+      render: (text, record) => (
+        <div style={{ width: 100 }}>{record.inforLocation.endDestination}</div>
+      ),
+    },
+    {
+      title: "Transportation Method",
+      dataIndex: "transportationMethod",
+      render: (text, record) =>
+        record.transportationMethod.map((item, index) => (
+          <div key={index} style={{ width: 100 }}>
+            {index + 1} - {item}
+          </div>
+        )),
+    },
+    {
+      title: "Duration",
+      dataIndex: "duration",
+      render: (text, record) => (
+        <div style={{ width: 100 }}>{record.duration}</div>
+      ),
+    },
+    {
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
+      render: (text, record) => (
+        <div style={{ width: 200 }}>
+          <p style={truncateStyle}>{record.detailHotel}</p>
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              alert(record.detailHotel);
+            }}
+          >
+            Read more
+          </a>
+        </div>
+      ),
+    },
+    {
+      title: "Rating",
+      dataIndex: "rating",
+      render: (text, record) => {
+        const { totalRating, count } = record.reviewId.reduce(
+          (acc, item) => {
+            acc.totalRating += parseInt(item.rating, 10) || 0;
+            acc.count += 1;
+            return acc;
+          },
+          { totalRating: 0, count: 0 }
+        );
+
+        const averageRating = count > 0 ? (totalRating / count).toFixed(2) : 0;
+
+        return <div style={{ width: 150 }}>{averageRating}</div>;
+      },
+    },
+    {
+      title: "Review",
+      dataIndex: "Review",
+      render: (text, record) => (
+        <div style={{ width: 150 }}>{record.reviewId.length}</div>
+      ),
+    },
     {
       title: "Status",
       key: "status",
@@ -243,19 +314,18 @@ const TourPage = () => {
         columns={columns}
         dataSource={dataTour}
         rowKey="id"
-        scroll={{ x: true, y: 950 }}
+        scroll={{ x: true }}
+        // scroll={{ x: true, y: 950 }}
         // style={{ maxWidth: 1080 }}
-        sticky
+        sticky={{ offsetHeader: 35 }} // Kích hoạt sticky cho Table Header
         rowClassName={(record) => {
           switch (record.status) {
             case "available":
               return;
-            case "out_of_stock":
+            case "cancelled":
               return "bg-red-100";
-            case "discontinued":
+            case "pending":
               return "bg-yellow-100";
-            case "pre_order":
-              return "bg-gray-100";
             default:
               return "";
           }
@@ -269,7 +339,12 @@ const TourPage = () => {
         onChange={handleTableChange}
       />
 
-      {isModalOpen && <ModalProduct openModal={setIsModalOpen} />}
+      {isModalOpen && (
+        <ModalTourPage openModal={setIsModalOpen} selected={selected} />
+      )}
+      {isModalReviewOpen && (
+        <ModalReviewTourPage openModal={setIsModalReviewOpen} selected={selected} />
+      )}
       <ToastContainer />
     </div>
   );

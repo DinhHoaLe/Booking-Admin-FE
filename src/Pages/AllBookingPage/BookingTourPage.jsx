@@ -10,6 +10,7 @@ import {
   fetchBooking,
 } from "../../Redux/Slide/bookingSlice";
 import { apiDelete } from "../../API/APIService";
+import ModelBookingTourPage from "./ModelBookingTourPage";
 
 const BookingTourPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,6 +20,8 @@ const BookingTourPage = () => {
   const { booking, status, error, page, pageSize, total } = useSelector(
     (state) => state.booking.tour
   );
+
+  console.log(booking);
 
   useEffect(() => {
     if (status === "idle") {
@@ -57,6 +60,11 @@ const BookingTourPage = () => {
   const openModal = (product) => {
     setIsModalOpen(true);
     setSelected(product);
+  };
+
+  const openModalDetail = (record) => {
+    const url = `/detail-tour-booking/${record._id}`;
+    window.open(url, "_blank");
   };
 
   // const filtersID = bookingHotels.map((item) => ({
@@ -109,7 +117,7 @@ const BookingTourPage = () => {
         <button onClick={() => openModal(record)}>Edit</button>
       </Menu.Item>
       <Menu.Item key="1">
-        <button onClick={() => openModal(record)}>View</button>
+        <button onClick={() => openModalDetail(record)}>View</button>
       </Menu.Item>
       <Menu.Divider />
       <Menu.Item key="2">
@@ -130,119 +138,94 @@ const BookingTourPage = () => {
       sorter: (a, b) => a.id - b.id,
       render: (text, record) => <div>{record._id}</div>,
     },
-    // {
-    //   title: "Name",
-    //   dataIndex: "hotelName",
-    //   key: "hotelName",
-    //   fixed: "left",
-    //   // filters: filtersName,
-    //   onFilter: (value, record) => record.hotelName.indexOf(value) === 0,
-    //   sorter: (a, b) => a.hotelName.localeCompare(b.hotelName),
-    //   render: (text, record) => (
-    //     <div style={{ width: 250 }}>{record.hotelName}</div>
-    //   ),
-    // },
-    // {
-    //   title: "Category",
-    //   dataIndex: "category",
-    //   key: "category",
-    //   // filters: filtersCategory,
-    //   onFilter: (value, record) => record.category.indexOf(value) === 0,
-    //   sorter: (a, b) => a.category.localeCompare(b.category),
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>{record.category}</div>
-    //   ),
-    // },
-    // {
-    //   title: "Available Rooms",
-    //   dataIndex: "availableRooms",
-    //   key: "availableRooms",
-    //   // filters: filtersCategory,
-    //   onFilter: (value, record) => record.availableRooms.indexOf(value) === 0,
-    //   sorter: (a, b) => a.availableRooms.localeCompare(b.availableRooms),
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>{record.availableRooms}</div>
-    //   ),
-    // },
-    // {
-    //   title: "Image",
-    //   dataIndex: "image",
-    //   key: "image",
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>
-    //       <img
-    //         src={record.imgHotel}
-    //         alt={record.title}
-    //         style={{ width: "100px", height: "100px" }}
-    //       />
-    //     </div>
-    //   ),
-    // },
-    // {
-    //   title: "Price ( $ )",
-    //   dataIndex: "price",
-    //   key: "price",
-    //   sorter: (a, b) => a.priceAveragePerNight - b.priceAveragePerNight,
-    //   render: (text, record) => (
-    //     <div style={{ width: 80 }}>{record.priceAveragePerNight}</div>
-    //   ),
-    // },
-    // {
-    //   title: "Discount",
-    //   dataIndex: "discount",
-    //   key: "discount",
-    //   sorter: (a, b) => a.discount - b.discount,
-    //   render: (text, record) => (
-    //     <div style={{ width: 80 }}>{record.discount}</div>
-    //   ),
-    // },
-    // {
-    //   title: "City",
-    //   dataIndex: "city",
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>{record.address.city}</div>
-    //   ),
-    // },
-    // {
-    //   title: "District",
-    //   dataIndex: "district",
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>{record.address.district}</div>
-    //   ),
-    // },
-    // {
-    //   title: "Ward",
-    //   dataIndex: "ward",
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>{record.address.ward}</div>
-    //   ),
-    // },
-    // {
-    //   title: "Street",
-    //   dataIndex: "street",
-    //   render: (text, record) => (
-    //     <div style={{ width: 100 }}>{record.address.street}</div>
-    //   ),
-    // },
-    // {
-    //   title: "Description",
-    //   dataIndex: "description",
-    //   key: "description",
-    //   render: (text, record) => (
-    //     <div style={{ width: 200 }}>
-    //       <p style={truncateStyle}>{record.detailHotel}</p>
-    //       <a
-    //         href="#"
-    //         onClick={(e) => {
-    //           e.preventDefault();
-    //           alert(record.detailHotel);
-    //         }}
-    //       >
-    //         Read more
-    //       </a>
-    //     </div>
-    //   ),
-    // },
+    {
+      title: "Tour Info",
+      dataIndex: "infoTour",
+      key: "infoTour",
+      fixed: "left",
+      onFilter: (value, record) => record.tourName.indexOf(value) === 0,
+      sorter: (a, b) => a.tourName.localeCompare(b.tourName),
+      render: (text, record) => (
+        <div style={{ width: 250 }}>
+          <div>
+            <span className="font-bold">Name : </span>
+            {record.objectId.tourName}
+          </div>
+          <div>
+            <span className="font-bold">Destination : </span>
+            {record.objectId.inforLocation.destination.map((item, index) => (
+              <span key={index}>{item} , </span>
+            ))}
+          </div>
+          <div>
+            <span className="font-bold">Duration : </span>
+            {record.objectId.duration}
+          </div>
+          <div>
+            <span className="font-bold">Price : </span>
+            {record.objectId.price}
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "User Info",
+      dataIndex: "roomName",
+      key: "roomName",
+      render: (_, record) => {
+        return (
+          <div>
+            <div>
+              <span className="font-bold">Email : </span>
+              {record.userId.email}
+            </div>
+            <div>
+              <span className="font-bold">Name : </span>
+              {record.userId.firstName} {record.userId.lastName}
+            </div>
+            <div>
+              <span className="font-bold">Phone : </span>
+              {record.userId.phone}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      title: "Booking Info",
+      dataIndex: "infoBooking",
+      key: "infoBooking",
+      fixed: "left",
+      render: (text, record) => (
+        <div>
+          <div>
+            <span className="font-bold">Persons : </span>
+            {record.totalPersons}
+          </div>
+          <div>
+            <span className="font-bold">Book Date : </span>
+            {record.createdAt.slice(0, 10)}
+          </div>
+          <div>
+            <span className="font-bold">Start Date : </span>
+            {record.objectId.startDateBooking.slice(0, 10)}
+          </div>
+          <div>
+            <span className="font-bold">End Date : </span>
+            {record.objectId.endDateBooking.slice(0, 10)}
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Total Amount ( $ )",
+      dataIndex: "totalAmount",
+      key: "totalAmount",
+      sorter: (a, b) => a.totalAmount - b.totalAmount,
+      render: (text, record) => (
+        <div style={{ width: 150, fontWeight: 700 }}>{record.totalAmount}</div>
+      ),
+    },
     {
       title: "Status",
       key: "status",
@@ -276,9 +259,10 @@ const BookingTourPage = () => {
         columns={columns}
         dataSource={booking}
         rowKey="id"
-        scroll={{ x: true, y: 950 }}
+        // scroll={{ x: true, y: 950 }}
         // style={{ maxWidth: 1080 }}
-        sticky
+        scroll={{ x: true }}
+        sticky={{ offsetHeader: 35 }}
         rowClassName={(record) => {
           switch (record.status) {
             case "active":
@@ -299,9 +283,9 @@ const BookingTourPage = () => {
         }}
         onChange={handleTableChange}
       />
-      {/* {isModalOpen && (
-        <ModalProduct openModal={setIsModalOpen} selected={selected} />
-      )} */}
+      {isModalOpen && (
+        <ModelBookingTourPage openModal={setIsModalOpen} selected={selected} />
+      )}
       <ToastContainer />
     </div>
   );
