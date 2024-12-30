@@ -8,8 +8,10 @@ import { useSelector, useDispatch } from "react-redux";
 import { setPagination, fetchHotel } from "../../Redux/Slide/hotelSlice";
 import { apiDelete } from "../../API/APIService";
 import ModalReviewHotel from "./ModalReviewHotelPage";
+import { useNavigate } from "react-router-dom";
 
 const HotelPage = () => {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalReviewOpen, setIsModalReviewOpen] = useState(false);
   const [selected, setSelected] = useState();
@@ -33,13 +35,16 @@ const HotelPage = () => {
   if (statusHotels === "failed") return <p>Error: {errorHotels}</p>;
 
   const handleTableChange = (newPagination) => {
-    const newPage = newPagination.current;
-    const newPageSize = newPagination.pageSize;
     setPagination({
       current: newPagination.current,
       pageSize: newPagination.pageSize,
     });
-    dispatch(fetchHotel({ page: newPage, pageSize: newPageSize }));
+    dispatch(
+      fetchHotel({
+        page: newPagination.current,
+        pageSize: newPagination.pageSize,
+      })
+    );
   };
 
   const openModal = (product) => {
@@ -50,6 +55,10 @@ const HotelPage = () => {
   const openModalReview = (product) => {
     setIsModalReviewOpen(true);
     setSelected(product);
+  };
+
+  const openRooms = (product) => {
+    navigate("/admin-page/product/rooms", { state: { product } });
   };
 
   // const filtersID = hotels.map((item) => ({
@@ -102,10 +111,13 @@ const HotelPage = () => {
         <button onClick={() => openModal(record)}>Edit</button>
       </Menu.Item>
       <Menu.Item key="1">
+        <button onClick={() => openRooms(record)}>Rooms</button>
+      </Menu.Item>
+      <Menu.Item key="2">
         <button onClick={() => openModalReview(record)}>Review</button>
       </Menu.Item>
       <Menu.Divider />
-      <Menu.Item key="2">
+      <Menu.Item key="3">
         <Popconfirm
           title="Delete the hotel"
           description="Are you sure to delete this hotel?"

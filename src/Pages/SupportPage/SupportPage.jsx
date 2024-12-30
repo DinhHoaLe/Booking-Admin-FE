@@ -47,8 +47,6 @@ const SupportPage = () => {
 
   const deleteSupport = async () => {};
 
-  console.log(dataQuotes);
-
   const columns = [
     {
       title: "Reviews ID",

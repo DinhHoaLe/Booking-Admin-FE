@@ -21,8 +21,6 @@ const PromotionPage = () => {
     (state) => state.promotion
   );
 
-  console.log(promotion);
-
   const openModal = (xxx) => {
     setModal(true);
     setSelectedPromotion(xxx);

@@ -5,8 +5,6 @@ import { DownOutlined } from "@ant-design/icons";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchHotel } from "../../Redux/Slide/hotelSlice";
-import { fetchAddress } from "../../Redux/Slide/addressSlice";
 import { fetchFlight } from "../../Redux/Slide/flightSlice";
 import { apiDelete } from "../../API/APIService";
 
@@ -14,6 +12,7 @@ const FlightPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selected, setSelected] = useState();
   const dispatch = useDispatch();
+
   const { flights, statusFlights, errorFlights } = useSelector(
     (state) => state.flights
   );

@@ -35,7 +35,6 @@ const ModalRoomPage = ({ openModal, selected }) => {
   const [previewImage, setPreviewImage] = useState("");
   const [isChangeAvatar, setIsChangeAvatar] = useState(false);
 
-  console.log(selected);
   const [avatar, setAvatar] = useState(
     selected.imgRoom?.avatar
       ? [

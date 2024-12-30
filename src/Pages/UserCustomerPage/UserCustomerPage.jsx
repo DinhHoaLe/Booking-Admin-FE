@@ -26,7 +26,6 @@ const UserCustomerPage = () => {
     }
   }, [dispatch, status]);
 
-  console.log(users);
   if (status === "loading") return <p>Loading...</p>;
   if (status === "failed") return <p>Error: {error}</p>;
 

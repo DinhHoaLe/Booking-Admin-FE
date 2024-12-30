@@ -1,85 +1,100 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  useNavigate,
-} from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import Sidebar from "../SideBar/SideBar";
 import Header from "../Header/header";
 import DashboardPage from "../DashBoardPage/DashBoardPage";
+import AllBookingPage from "../AllBookingPage/AllBookingPage";
+import AllAddPage from "../AllAddPage/AllAddPage";
+import AllUserPage from "../AllUserPage/AllUserPage";
 import UserAdminPage from "../UserAdminPage/UserAdminPage";
-import RatingPage from "../RatingPage/RatingPage";
+import ReviewPage from "../ReviewPage/ReviewPage";
+import AllPromotionPage from "../PromotionPage/AllPromotionPage";
+import AllProductPage from "../AllProductPage/AllProductPage";
+import RoomPage from "../RoomPage/Roompage";
 import HelpPage from "../HelpPage/HelpPage";
 import DataPage from "../DataPage/DataPage";
 import SettingPage from "../SettingPage/SettingPage";
-import AnalyticsPage from "../AnalyticsPage/AnalyticsPage";
-import AllProductPage from "../AllProductPage/AllProductPage";
-import AllAddPage from "../AllAddPage/AllAddPage";
-import AllBookingPage from "../AllBookingPage/AllBookingPage";
-import AllUserPage from "../AllUserPage/AllUserPage";
-// import AllReviewPage from "../AllReviewPage/AllReviewPage";
 import AllSupportPage from "../AllSupportPage/AllSupportPage";
-import ReviewPage from "../ReviewPage/ReviewPage";
-import AllPromotionPage from "../PromotionPage/AllPromotionPage";
+import AnalyticsPage from "../AnalyticsPage/AnalyticsPage";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
+import { useDispatch } from "react-redux";
+import { logout, refreshAccessToken } from "../../Redux/Slide/infoUserSlice";
+import MonthlyRevenue from "../AnalyticsPage/MonthlyRevenue";
 
 const AdminUI = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [token, setToken] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const refreshToken = Cookies.get("refreshToken");
-    console.log(refreshToken);
-    if (!refreshToken || refreshToken.trim() === "") {
-      navigate("/");
-    } else {
-      setIsLoading(false);
-    }
-  }, []);
+  const dispatch = useDispatch();
 
   const accessToken = Cookies.get("accessToken");
-  console.log("Access Token:", accessToken);
-  // useEffect(() => {
-  //   if (accessToken) {
-  //     console.log(jwtDecode(accessToken));
-  //   }
-  // }, []);
+  const refreshToken = Cookies.get("refreshToken");
+
+  useEffect(() => {
+    if (refreshToken) {
+      if (!accessToken) {
+        dispatch(refreshAccessToken()).finally(() => setIsLoading(false));
+      } else {
+        setToken(true);
+        setIsLoading(false);
+      }
+    } else {
+      setToken(false);
+      dispatch(logout());
+      navigate("/");
+      setIsLoading(false);
+    }
+  }, [dispatch, accessToken, refreshToken, navigate]);
 
   if (isLoading) {
     return (
-      <div>You do not have access before logging in! Please log in first!</div>
+      <div className="h-screen flex items-center justify-center">
+        Loading...
+      </div>
     );
   }
 
-  return (
-    <div className="h-screen flex w-full ">
+  return token ? (
+    <div className="h-screen flex w-full">
       <Sidebar />
-      <div className="flex flex-col w-full overflow-auto ">
+      <div className="flex flex-col w-full overflow-auto">
         <Header />
-        <div className=" bg-[#F5F6FA] overflow-auto">
-          {/* <div className="h-screen m-3 "> */}
+        <div className="bg-[#F5F6FA] overflow-auto">
           <Routes>
             <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/analytics" element={<AnalyticsPage />} />
+            <Route
+              path="/analytics/monthly-revenue"
+              element={<MonthlyRevenue />}
+            />
+            <Route path="/daily-revenue" element={<AnalyticsPage />} />
+            <Route
+              path="/analytics/monthly-booking"
+              element={<AnalyticsPage />}
+            />
+            <Route
+              path="/analytics/product-revenue"
+              element={<AnalyticsPage />}
+            />
             <Route path="/booking" element={<AllBookingPage />} />
             <Route path="/add" element={<AllAddPage />} />
             <Route path="/user" element={<AllUserPage />} />
             <Route path="/admin" element={<UserAdminPage />} />
             <Route path="/review" element={<ReviewPage />} />
-            <Route path="/rating" element={<RatingPage />} />
             <Route path="/promotion" element={<AllPromotionPage />} />
             <Route path="/product" element={<AllProductPage />} />
-            <Route path="/help" element={<HelpPage />} />
-            <Route path="/data" element={<DataPage />} />
-            <Route path="/setting" element={<SettingPage />} />
+            <Route path="/product/rooms" element={<RoomPage />} />
             <Route path="/support" element={<AllSupportPage />} />
-            <Route path="/analytics" element={<AnalyticsPage />} />
+            <Route path="/data" element={<DataPage />} />
+            <Route path="/help" element={<HelpPage />} />
+            <Route path="/setting" element={<SettingPage />} />
           </Routes>
         </div>
-        {/* </div> */}
       </div>
     </div>
+  ) : (
+    <div>You do not have access. Please log in!</div>
   );
 };
 

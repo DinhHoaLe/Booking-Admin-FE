@@ -9,6 +9,7 @@ import bookingReducer from "./Slide/bookingSlice";
 import roomsReducer from "./Slide/roomSlice";
 import reviewsReducer from "./Slide/reviewSlice";
 import promotionReducer from "./Slide/promotionSlice";
+import infoUserReducer from "./Slide/infoUserSlice";
 
 const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ const store = configureStore({
     rooms: roomsReducer,
     reviews: reviewsReducer,
     promotion: promotionReducer,
+    inforUser: infoUserReducer,
   },
 });
 

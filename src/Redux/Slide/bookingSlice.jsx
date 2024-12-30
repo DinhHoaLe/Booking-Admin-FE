@@ -19,25 +19,25 @@ const initialState = {
     booking: [],
     status: "idle",
     error: null,
-    page: 1,
-    pageSize: 10,
-    total: 0,
+    // page: 1,
+    // pageSize: 10,
+    // total: 0,
   },
   flight: {
     booking: [],
     status: "idle",
     error: null,
-    page: 1,
-    pageSize: 10,
-    total: 0,
+    // page: 1,
+    // pageSize: 10,
+    // total: 0,
   },
   tour: {
     booking: [],
     status: "idle",
     error: null,
-    page: 1,
-    pageSize: 10,
-    total: 0,
+    // page: 1,
+    // pageSize: 10,
+    // total: 0,
   },
 };
 
@@ -45,11 +45,11 @@ const bookingSlice = createSlice({
   name: "booking",
   initialState,
   reducers: {
-    setPagination: (state, action) => {
-      const { objectType, page, pageSize } = action.payload;
-      state[objectType].page = page;
-      state[objectType].pageSize = pageSize;
-    },
+    // setPagination: (state, action) => {
+    //   const { objectType, page, pageSize } = action.payload;
+    //   state[objectType].page = page;
+    //   state[objectType].pageSize = pageSize;
+    // },
     resetState: (state, action) => {
       const { objectType } = action.payload;
       state[objectType] = JSON.parse(JSON.stringify(initialState[objectType]));
@@ -58,17 +58,17 @@ const bookingSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchBooking.pending, (state, action) => {
-        const { objectType } = action.meta.arg; // Lấy objectType từ meta
+        const { objectType } = action.meta.arg;
         state[objectType].status = "loading";
       })
       .addCase(fetchBooking.fulfilled, (state, action) => {
-        const { objectType } = action.meta.arg; // Lấy objectType từ meta
+        const { objectType } = action.meta.arg;
         state[objectType].status = "succeeded";
         state[objectType].booking = action.payload.data;
         state[objectType].total = action.payload.total;
       })
       .addCase(fetchBooking.rejected, (state, action) => {
-        const { objectType } = action.meta.arg; // Lấy objectType từ meta
+        const { objectType } = action.meta.arg;
         state[objectType].status = "failed";
         state[objectType].error = action.error.message;
       });

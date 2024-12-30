@@ -5,29 +5,43 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
 import { useSelector, useDispatch } from "react-redux";
 import {
-  setPagination,
+  // setPagination,
   resetState,
   fetchBooking,
 } from "../../Redux/Slide/bookingSlice";
 import ModelBookingHotelPage from "./ModelBookingHotelPage.jsx";
 import { apiDelete } from "../../API/APIService";
 import DetailBookingHotelPage from "./DetailBookingHotelPage.jsx";
+import ModalEmailBooking from "./modalEmail.jsx";
 
 const BookingHotelPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalEmailOpen, setIsModalEmailOpen] = useState(false);
   const [isModalDetailOpen, setIsModalDetailOpen] = useState(false);
   const [selected, setSelected] = useState();
   const dispatch = useDispatch();
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+  });
 
   const { booking, status, error, page, pageSize, total } = useSelector(
     (state) => state.booking.hotel
   );
 
+  console.log(booking);
+
   useEffect(() => {
     if (status === "idle") {
-      dispatch(fetchBooking({ page, pageSize, objectType: "hotel" }));
+      dispatch(
+        fetchBooking({
+          page: pagination.current,
+          pageSize: pagination.pageSize,
+          objectType: "hotel",
+        })
+      );
     }
-  }, [dispatch, status, page, pageSize]);
+  }, [dispatch, pagination]);
 
   useEffect(() => {
     return () => {
@@ -38,20 +52,17 @@ const BookingHotelPage = () => {
   if (status === "loading") return <p>Loading...</p>;
   if (status === "failed") return <p>Error: {error}</p>;
 
-  const handleTableChange = (pagination) => {
-    const newPage = pagination.current;
-    const newPageSize = pagination.pageSize;
-
+  const handleTableChange = (newPagination) => {
     dispatch(
       setPagination({
-        page: newPage,
-        pageSize: newPageSize,
+        current: newPagination.current,
+        pageSize: newPagination.pageSize,
       })
     );
     dispatch(
       fetchBooking({
-        page: newPage,
-        pageSize: newPageSize,
+        page: newPagination.current,
+        pageSize: newPagination.pageSize,
         objectType: "hotel",
       })
     );
@@ -62,8 +73,13 @@ const BookingHotelPage = () => {
     setSelected(product);
   };
 
+  const openModalEmail = (product) => {
+    setIsModalEmailOpen(true);
+    setSelected(product);
+  };
+
   const openModalDetail = (record) => {
-    const url = `/detail-tour-booking/${record._id}`;
+    const url = `/detail-hotel-booking/${record._id}`;
     window.open(url, "_blank");
   };
 
@@ -95,17 +111,17 @@ const BookingHotelPage = () => {
 
   const delHotel = async (xxx) => {
     try {
-      // const response = await apiDelete(`delete-hotel/${xxx._id}`);
-      // toast.success(response, {
-      //   position: "top-center",
-      //   autoClose: 1000,
-      //   hideProgressBar: false,
-      //   closeOnClick: true,
-      //   pauseOnHover: true,
-      //   draggable: true,
-      //   progress: undefined,
-      //   theme: "light",
-      // });
+      const response = await apiDelete(`delete-hotel/${xxx._id}`);
+      toast.success(response, {
+        position: "top-center",
+        autoClose: 1000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     } catch (error) {
       console.log(error);
     }
@@ -119,8 +135,11 @@ const BookingHotelPage = () => {
       <Menu.Item key="1">
         <button onClick={() => openModalDetail(record)}>View</button>
       </Menu.Item>
-      <Menu.Divider />
       <Menu.Item key="2">
+        <button onClick={() => openModalEmail(record)}>Email</button>
+      </Menu.Item>
+      <Menu.Divider />
+      <Menu.Item key="3">
         <button onClick={() => delHotel(record)}>Delete</button>
       </Menu.Item>
     </Menu>
@@ -182,26 +201,26 @@ const BookingHotelPage = () => {
       sorter: (a, b) =>
         a.objectId.hotelName.localeCompare(b.objectId.hotelName),
       render: (_, record) => {
-        return record.bookedRoomId.map((item2, index) => (
-          <div key={index} className="w-48">
+        return (
+          <div className="w-48">
             <div>
               <span className="font-bold">Name : </span>
-              {item2.roomName}
+              {record.bookedRoomId.roomName}
             </div>
             <div>
               <span className="font-bold">Type : </span>
-              {item2.roomType}
+              {record.bookedRoomId.roomType}
             </div>
             <div>
               <span className="font-bold">Price ($) : </span>
-              {item2.pricePerNight}
+              {record.bookedRoomId.pricePerNight}
             </div>
             <div>
               <span className="font-bold">Max Occupancy : </span>
-              {item2.maxOccupancy}
+              {record.bookedRoomId.maxOccupancy}
             </div>
           </div>
-        ));
+        );
       },
     },
     {
@@ -338,6 +357,12 @@ const BookingHotelPage = () => {
       {isModalDetailOpen && (
         <DetailBookingHotelPage
           openModal={setIsModalDetailOpen}
+          selected={selected}
+        />
+      )}
+      {isModalEmailOpen && (
+        <ModalEmailBooking
+          openModal={setIsModalEmailOpen}
           selected={selected}
         />
       )}

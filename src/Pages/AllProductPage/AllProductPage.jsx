@@ -8,7 +8,6 @@ import RoomPage from "../RoomPage/Roompage";
 const AllProductPage = () => {
   const nameHeader = [
     { name: "Hotel", component: <HotelPage /> },
-    { name: "Room", component: <RoomPage /> },
     { name: "Flight", component: <FlightPage /> },
     { name: "Tour", component: <TourPage /> },
   ];

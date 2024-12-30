@@ -16,8 +16,6 @@ const DetailBookingHotelPage = () => {
     }
   };
 
-  console.log(dataBooking);
-
   useEffect(() => {
     callApi();
   }, []);
@@ -168,35 +166,35 @@ const DetailBookingHotelPage = () => {
           <h2 className="text-xl font-semibold mb-4">Room Details</h2>
           <div className="flex space-x-6">
             <img
-              src={dataBooking?.bookedRoomId?.[0]?.imgRoom?.avatar || "N/A"}
+              src={dataBooking?.bookedRoomId?.imgRoom?.avatar || "N/A"}
               alt="Room"
               className="w-32 h-32 rounded-lg object-cover border border-gray-200"
             />
             <div>
               <p>
                 <span className="font-semibold">Room Name:</span>{" "}
-                {dataBooking?.bookedRoomId?.[0]?.roomName || "N/A"}
+                {dataBooking?.bookedRoomId?.roomName || "N/A"}
               </p>
               <p>
                 <span className="font-semibold">Room Type:</span>{" "}
-                {dataBooking?.bookedRoomId?.[0]?.roomType || "N/A"}
+                {dataBooking?.bookedRoomId?.roomType || "N/A"}
               </p>
               <p>
                 <span className="font-semibold">Max Occupancy:</span>{" "}
-                {dataBooking?.bookedRoomId?.[0]?.maxOccupancy || "N/A"}
+                {dataBooking?.bookedRoomId?.maxOccupancy || "N/A"}
               </p>
               <p>
                 <span className="font-semibold">Price Per Night:</span>{" "}
-                {dataBooking?.bookedRoomId?.[0]?.pricePerNight || "N/A"}
+                {dataBooking?.bookedRoomId?.pricePerNight || "N/A"}
               </p>
               <p>
                 <span className="font-semibold">Dimensions:</span>{" "}
-                {dataBooking?.bookedRoomId?.[0]?.dimensions || "N/A"}
+                {dataBooking?.bookedRoomId?.dimensions || "N/A"}
               </p>
               <p>
                 <span className="font-semibold">Amenities:</span>{" "}
-                {dataBooking?.bookedRoomId?.[0]?.amenities?.length
-                  ? dataBooking.bookedRoomId[0].amenities.map((item, index) => (
+                {dataBooking?.bookedRoomId?.amenities?.length
+                  ? dataBooking.bookedRoomId.amenities.map((item, index) => (
                       <span key={index}>{item} , </span>
                     ))
                   : "N/A"}

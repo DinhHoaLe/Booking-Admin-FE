@@ -8,6 +8,7 @@ import {
   Form,
   Select,
   Popconfirm,
+  Button,
 } from "antd";
 import ModalRoomPage from "./ModalRoomPage";
 import { DownOutlined } from "@ant-design/icons";
@@ -16,39 +17,25 @@ import { ToastContainer, toast } from "react-toastify";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchAllHotel } from "../../Redux/Slide/allHotelSlice";
 import { apiDelete, apiGet } from "../../API/APIService";
+import ModalViewRoomBookedPage from "./ModalViewRoomBookedPage";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const { Option } = Select;
 
 const RoomPage = () => {
   const [form] = Form.useForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalViewOpen, setIsModalViewOpen] = useState(false);
   const [selected, setSelected] = useState();
   const [filterRooms, setFilterRooms] = useState([]);
-  const dispatch = useDispatch();
-
-  const { allHotels, statusAllHotels, errorAllHotels } = useSelector(
-    (state) => state.allHotels
-  );
-
-  useEffect(() => {
-    if (statusAllHotels === "idle") {
-      dispatch(fetchAllHotel());
-    }
-  }, [dispatch, statusAllHotels]);
-
-  if (statusAllHotels === "loading") return <p>Loading...</p>;
-  if (statusAllHotels === "failed") return <p>Error: {errorAllHotels}</p>;
-
-  // const handleTableChange = (pagination) => {
-  // const newPage = pagination.current;
-  // const newPageSize = pagination.pageSize;
-  // dispatch(setPagination({ page: newPage, pageSize: newPageSize }));
-  // dispatch(fetchHotel({ page: newPage, pageSize: newPageSize }));
-  // };
-
-  const handleRooms = async (value) => {
+  const location = useLocation();
+  const product = location.state?.product;
+  const navigate = useNavigate();
+  const callApi = async () => {
     try {
-      const response = await apiGet("get-room-by-hotelId", { hotelId: value });
+      const response = await apiGet("get-room-by-hotelId", {
+        hotelId: product._id,
+      });
 
       if (Array.isArray(response.data)) {
         setFilterRooms(response.data);
@@ -62,6 +49,15 @@ const RoomPage = () => {
 
   const openModal = (product) => {
     setIsModalOpen(true);
+    setSelected(product);
+  };
+
+  useEffect(() => {
+    callApi();
+  }, []);
+
+  const openModalView = (product) => {
+    setIsModalViewOpen(true);
     setSelected(product);
   };
 
@@ -99,7 +95,7 @@ const RoomPage = () => {
         <button onClick={() => openModal(record)}>Edit</button>
       </Menu.Item>
       <Menu.Item key="1">
-        <button onClick={() => openModal(record)}>View</button>
+        <button onClick={() => openModalView(record)}>View</button>
       </Menu.Item>
       <Menu.Divider />
       <Menu.Item key="2">
@@ -127,7 +123,9 @@ const RoomPage = () => {
       // width: 100,
       onFilter: (value, record) => record._id.toString().indexOf(value) === 0,
       sorter: (a, b) => a._id - b._id,
-      render: (text, record) => <div>{record._id}</div>,
+      render: (text, record) => (
+        <div style={{ width: "200px" }}>{record._id}</div>
+      ),
     },
     {
       title: "Name",
@@ -257,26 +255,14 @@ const RoomPage = () => {
 
   return (
     <div>
-      <Form layout="vertical" className="sticky top-11 z-50">
-        <Form.Item>
-          <Select onChange={handleRooms} placeholder="Select Hotel">
-            <Option value="">Select Room</Option>
-            {allHotels.map((item, index) => (
-              <Option key={index} value={item._id}>
-                {item.hotelName} - {item._id}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-      </Form>
-
+      <Button onClick={() => navigate(-1)}>Back</Button>
       <Table
         columns={columns}
         dataSource={filterRooms}
         scroll={{ x: true }}
         // scroll={{ x: true, y: 950 }}
         // style={{ maxWidth: 1080 }}
-        sticky={{ offsetHeader: 80 }} // Kích hoạt sticky cho Table Header
+        sticky={{ offsetHeader: 30 }}
         rowClassName={(record) => {
           switch (record.status) {
             case "available":
@@ -299,6 +285,12 @@ const RoomPage = () => {
       />
       {isModalOpen && (
         <ModalRoomPage openModal={setIsModalOpen} selected={selected} />
+      )}
+      {isModalViewOpen && (
+        <ModalViewRoomBookedPage
+          openModal={setIsModalViewOpen}
+          selected={selected}
+        />
       )}
       <ToastContainer />
     </div>

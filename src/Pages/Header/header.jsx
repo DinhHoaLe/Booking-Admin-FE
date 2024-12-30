@@ -2,23 +2,25 @@ import React, { useEffect, useState, useRef } from "react";
 import { Navigate } from "react-router-dom";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-import {
-  ReloadOutlined,
-  DownCircleOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
+import { ReloadOutlined, DownCircleOutlined } from "@ant-design/icons";
 import { Avatar, Input, Typography, Button } from "antd";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUserInfo } from "../../Redux/Slide/infoUserSlice";
 
 function Header() {
-  const navigate = useNavigate();
-  const location = useLocation();
   const [search, setSearch] = useState("");
-  const currentPath = location.pathname;
+  const dispatch = useDispatch();
 
+  const { infor, status } = useSelector((state) => state.inforUser);
 
   const searchInput = (e) => {
     setSearch(e.target.value);
   };
+  useEffect(() => {
+    if (status === "idle") {
+      dispatch(fetchUserInfo());
+    }
+  }, [status, dispatch]);
 
   return (
     <div className="w-full p-6 ">
@@ -36,7 +38,7 @@ function Header() {
           />
         </div>
         <div className="flex items-center space-x-4 font-bold italic">
-          <div> Email</div>
+          <div> {infor?.email}</div>
           <div
             style={{
               textAlign: "center",
@@ -46,7 +48,7 @@ function Header() {
               alignItems: "center",
             }}
           >
-            <Avatar size={50} />
+            <Avatar size={50} src={infor?.avatar} />
           </div>
           <DownCircleOutlined />
         </div>

@@ -14,7 +14,6 @@ const ModalReviewHotel = ({ openModal, selected }) => {
     openModal(false);
   };
 
-  console.log(review);
   const callApi = async () => {
     try {
       const response = await apiGetAll(

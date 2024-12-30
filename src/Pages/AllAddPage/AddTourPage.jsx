@@ -111,6 +111,7 @@ const AddTourPage = () => {
         type: "success",
         isLoading: false,
         autoClose: 1000,
+        onClose : navigate("/admin-page/product")
       });
     } catch (error) {
       console.log(error);
@@ -402,7 +403,7 @@ const AddTourPage = () => {
             htmlType="submit"
             className="w-full bg-[#07689F]"
           >
-            Save Hotel
+            Save Tour
           </Button>
         </Form.Item>
       </Form>

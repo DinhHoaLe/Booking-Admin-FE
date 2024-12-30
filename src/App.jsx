@@ -21,6 +21,8 @@ import DetailBookingHotelPage from "./Pages/AllBookingPage/DetailBookingHotelPag
 import DetailBookingTourPage from "./Pages/AllBookingPage/DetailBookingTourPage";
 import DetailBookingFlightPage from "./Pages/AllBookingPage/DetailBookingFlightPage";
 import AllPromotionPage from "./Pages/PromotionPage/AllPromotionPage";
+import RoomPage from "./Pages/RoomPage/Roompage";
+import MonthlyRevenue from "./Pages/AnalyticsPage/MonthlyRevenue";
 
 const Router = createBrowserRouter([
   {
@@ -67,6 +69,13 @@ const Router = createBrowserRouter([
         path: "product",
         element: <AllProductPage />,
         errorElement: <ErrorPage />,
+        children: [
+          {
+            path: "rooms",
+            element: <RoomPage />,
+            errorElement: <ErrorPage />,
+          },
+        ],
       },
       {
         path: "add",
@@ -122,6 +131,28 @@ const Router = createBrowserRouter([
         path: "analytics",
         element: <AnalyticsPage />,
         errorElement: <ErrorPage />,
+        children: [
+          {
+            path: "monthly-revenue",
+            element: <MonthlyRevenue />,
+            errorElement: <ErrorPage />,
+          },
+          {
+            path: "daily-revenue",
+            element: <AnalyticsPage />,
+            errorElement: <ErrorPage />,
+          },
+          {
+            path: "monthly-booking",
+            element: <AnalyticsPage />,
+            errorElement: <ErrorPage />,
+          },
+          {
+            path: "product-revenue",
+            element: <AnalyticsPage />,
+            errorElement: <ErrorPage />,
+          },
+        ],
       },
       {
         path: "data",

@@ -67,8 +67,7 @@ function Sidebar() {
     setIsMobile(window.innerWidth <= 640);
   };
 
-  const logout = () => {
-    console.log("Logout function called");
+  const handleLogout = () => {
     Cookies.remove("accessToken", { path: "/" });
     Cookies.remove("refreshToken", { path: "/" });
     navigate("/");
@@ -76,7 +75,7 @@ function Sidebar() {
 
   const handleMenuClick = ({ key }) => {
     if (key === "/logout") {
-      logout();
+      handleLogout();
     } else {
       navigate(key);
     }
@@ -108,7 +107,7 @@ function Sidebar() {
               style={{
                 marginBottom: 16,
                 backgroundColor: "#F5F6FA",
-                width : "71px"
+                width: "71px",
               }}
             >
               {collapsed ? (
