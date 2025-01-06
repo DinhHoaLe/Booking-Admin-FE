@@ -17,6 +17,8 @@ const FlightPage = () => {
     (state) => state.flights
   );
 
+  console.log(flights);
+
   useEffect(() => {
     if (statusFlights === "idle") {
       dispatch(fetchFlight());
@@ -125,7 +127,7 @@ const FlightPage = () => {
       onFilter: (value, record) => record.departureDate.indexOf(value) === 0,
       sorter: (a, b) => a.departureDate.localeCompare(b.departureDate),
       render: (text, record) => (
-        <div style={{ width: 100 }}>{record.departureDate}</div>
+        <div style={{ width: 100 }}>{record.departureDate.slice(0, 19)}</div>
       ),
     },
     {
@@ -147,7 +149,7 @@ const FlightPage = () => {
       onFilter: (value, record) => record.destinationDate.indexOf(value) === 0,
       sorter: (a, b) => a.destinationDate.localeCompare(b.destinationDate),
       render: (text, record) => (
-        <div style={{ width: 100 }}>{record.destinationDate}</div>
+        <div style={{ width: 100 }}>{record.destinationDate.slice(0, 19)}</div>
       ),
     },
     {
@@ -155,7 +157,15 @@ const FlightPage = () => {
       dataIndex: "price",
       key: "price",
       sorter: (a, b) => a.price - b.price,
-      render: (text, record) => <div style={{ width: 80 }}>{record.price}</div>,
+      render: (text, record) =>
+        record.classFlight.map((item, index) => {
+          return (
+            <div className="w-32" key={index}>
+              <div>Class : {item.type}</div>
+              <div>Price : {item.price}</div>
+            </div>
+          );
+        }),
     },
     {
       title: "Seat",
