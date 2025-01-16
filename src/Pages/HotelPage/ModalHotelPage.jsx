@@ -78,7 +78,7 @@ const EditProduct = ({ openModal, selected }) => {
     const getWard = district.find((item) => item.Name === value);
     setWard(getWard.Wards);
   };
-  
+
   const handleCancel = () => {
     openModal(false);
   };
@@ -170,7 +170,16 @@ const EditProduct = ({ openModal, selected }) => {
         type: "success",
         isLoading: false,
         autoClose: 1000,
-        onClose: () => (navigate("/admin-page/product"), openModal(false)),
+        onClose: () => (
+          navigate("/admin-page/product"),
+          openModal(false),
+          dispatch(
+            fetchHotel({
+              page: 1,
+              pageSize: 10,
+            })
+          )
+        ),
       });
     } catch (error) {
       console.error("Error updating product:", error);

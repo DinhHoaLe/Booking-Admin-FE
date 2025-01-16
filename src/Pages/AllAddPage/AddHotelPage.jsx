@@ -20,6 +20,7 @@ import ImgCrop from "antd-img-crop";
 import { apiPostFormData } from "../../API/APIService";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchAddress } from "../../Redux/Slide/addressSlice";
+import { fetchHotel } from "../../Redux/Slide/hotelSlice";
 
 const { Option } = Select;
 
@@ -146,6 +147,15 @@ const AddHotelPage = () => {
         type: "success",
         isLoading: false,
         autoClose: 1000,
+        onClose: () => (
+          dispatch(
+            fetchHotel({
+              page: 1,
+              pageSize: 10,
+            })
+          ),
+          navigate("/admin-page/product")
+        ),
       });
     } catch (error) {
       console.log(error);

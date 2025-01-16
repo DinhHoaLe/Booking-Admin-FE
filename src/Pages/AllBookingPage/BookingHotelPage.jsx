@@ -88,10 +88,10 @@ const BookingHotelPage = () => {
     value: item._id.toString(),
   }));
 
-  const filtersName = booking.map((item) => ({
-    text: item.objectId.hotelName.toString(),
-    value: item.objectId.hotelName.toString(),
-  }));
+  // const filtersName = booking.map((item) => ({
+  //   text: item.objectId.hotelName.toString(),
+  //   value: item.objectId.hotelName.toString(),
+  // }));
 
   // const filtersCategory = [
   //   { text: "Hotel", value: "hotel" },
@@ -161,11 +161,11 @@ const BookingHotelPage = () => {
       title: "Hotel Info",
       dataIndex: "hotelName",
       key: "hotelName",
-      filters: filtersName,
-      onFilter: (value, record) =>
-        record.objectId.hotelName.indexOf(value) === 0,
-      sorter: (a, b) =>
-        a.objectId.hotelName.localeCompare(b.objectId.hotelName),
+      // filters: filtersName,
+      // onFilter: (value, record) =>
+      //   record.objectId.hotelName.indexOf(value) === 0,
+      // sorter: (a, b) =>
+      //   a.objectId.hotelName.localeCompare(b.objectId.hotelName),
       render: (text, record) => (
         <div style={{ width: 250 }}>
           <div>
@@ -195,11 +195,11 @@ const BookingHotelPage = () => {
       title: "Room Info ",
       dataIndex: "roomName",
       key: "roomName",
-      filters: filtersName,
-      onFilter: (value, record) =>
-        record.objectId.hotelName.indexOf(value) === 0,
-      sorter: (a, b) =>
-        a.objectId.hotelName.localeCompare(b.objectId.hotelName),
+      // filters: filtersName,
+      // onFilter: (value, record) =>
+      //   record.objectId.hotelName.indexOf(value) === 0,
+      // sorter: (a, b) =>
+      //   a.objectId.hotelName.localeCompare(b.objectId.hotelName),
       render: (_, record) => {
         return (
           <div className="w-48">
@@ -227,11 +227,11 @@ const BookingHotelPage = () => {
       title: "User Info",
       dataIndex: "roomName",
       key: "roomName",
-      filters: filtersName,
-      onFilter: (value, record) =>
-        record.objectId.hotelName.indexOf(value) === 0,
-      sorter: (a, b) =>
-        a.objectId.hotelName.localeCompare(b.objectId.hotelName),
+      // filters: filtersName,
+      // onFilter: (value, record) =>
+      //   record.objectId.hotelName.indexOf(value) === 0,
+      // sorter: (a, b) =>
+      //   a.objectId.hotelName.localeCompare(b.objectId.hotelName),
       render: (_, record) => {
         return (
           <div>
@@ -255,11 +255,11 @@ const BookingHotelPage = () => {
       title: "Booking Info",
       dataIndex: "roomName",
       key: "roomName",
-      filters: filtersName,
-      onFilter: (value, record) =>
-        record.objectId.hotelName.indexOf(value) === 0,
-      sorter: (a, b) =>
-        a.objectId.hotelName.localeCompare(b.objectId.hotelName),
+      // filters: filtersName,
+      // onFilter: (value, record) =>
+      //   record.objectId.hotelName.indexOf(value) === 0,
+      // sorter: (a, b) =>
+      //   a.objectId.hotelName.localeCompare(b.objectId.hotelName),
       render: (_, record) => {
         return (
           <div className="w-60">

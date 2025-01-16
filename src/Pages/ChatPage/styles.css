@@ -1,0 +1,45 @@
+.App {
+    font-family: sans-serif;
+    text-align: center;
+  }
+  
+
+  @keyframes shake {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-5px);
+    }
+    50% {
+      transform: translateX(5px);
+    }
+    75% {
+      transform: translateX(-5px);
+    }
+  }
+  
+  .shake {
+    animation: shake 0.5s ease-in-out infinite; /* Lặp lại vô hạn */
+  }
+
+  @keyframes rotate-swing {
+    0%, 100% {
+      transform: rotate(0deg); /* Vị trí ban đầu */
+    }
+    25% {
+      transform: rotate(-30deg); /* Xoay 30 độ sang trái */
+    }
+    50% {
+      transform: rotate(30deg); /* Xoay 30 độ sang phải */
+    }
+    75% {
+      transform: rotate(-30deg); /* Xoay lại sang trái */
+    }
+  }
+  
+  .swing {
+    animation: rotate-swing 1s ease-in-out infinite; /* Lặp vô hạn */
+    display: inline-block; /* Để đảm bảo icon xoay quanh tâm */
+  }
+  

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Tabs } from "antd";
 import SupportPage from "../SupportPage/SupportPage";
+import ChatSupportPage from "./ChatSupportPage";
 
 const AllSupportPage = () => {
   const nameHeader = [
     { name: "Email", component: <SupportPage /> },
-    { name: "Chat", component: <SupportPage /> },
-    { name: "Call", component: <SupportPage /> },
+    { name: "Chat", component: <ChatSupportPage /> },
   ];
 
   return (
@@ -16,12 +16,11 @@ const AllSupportPage = () => {
         type="card"
         size="large"
         tabBarStyle={{
-          position: "sticky", // Tabs sẽ dính khi cuộn
+          position: "sticky",
           display: "flex",
           justifyContent: "space-between",
-          // width: "100%",
-          top: 0, // Cố định tabs ở đầu trang khi cuộn
-          zIndex: 1000, // Đảm bảo Tabs hiển thị trên các phần tử khác
+          top: 0,
+          zIndex: 1000,
           backgroundColor: "#fff",
           border: "2px solid #f0f0f0",
         }}

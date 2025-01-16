@@ -195,7 +195,7 @@ const HotelPage = () => {
       ),
     },
     {
-      title: "Price ( $ )",
+      title: "Price ( VND )",
       dataIndex: "price",
       key: "price",
       sorter: (a, b) => a.priceAveragePerNight - b.priceAveragePerNight,

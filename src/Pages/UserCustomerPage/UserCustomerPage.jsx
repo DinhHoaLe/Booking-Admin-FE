@@ -29,6 +29,7 @@ const UserCustomerPage = () => {
   if (status === "loading") return <p>Loading...</p>;
   if (status === "failed") return <p>Error: {error}</p>;
 
+  console.log(dataUserName);
   const openModalHistory = (select) => {
     setSelected(select);
     setModalHistory(true);
@@ -195,7 +196,9 @@ const UserCustomerPage = () => {
       title: "Birthday",
       dataIndex: "dateOfBirth",
       render: (text, record) => (
-        <div className="w-24">{record.DOB.slice(0, 10)}</div>
+        <div className="w-24">
+          {record.DOB ? record.DOB.slice(0, 10) : "N/A"}
+        </div>
       ),
     },
     {
