@@ -10,7 +10,7 @@ import UserAdminPage from "../UserAdminPage/UserAdminPage";
 import ReviewPage from "../ReviewPage/ReviewPage";
 import AllPromotionPage from "../PromotionPage/AllPromotionPage";
 import AllProductPage from "../AllProductPage/AllProductPage";
-import RoomPage from "../RoomPage/Roompage";
+import RoomPage from "../RoomPage/RoomPage";
 import HelpPage from "../HelpPage/HelpPage";
 import DataPage from "../DataPage/DataPage";
 import SettingPage from "../SettingPage/SettingPage";

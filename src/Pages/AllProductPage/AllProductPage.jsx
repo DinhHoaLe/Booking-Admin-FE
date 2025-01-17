@@ -3,7 +3,7 @@ import { Tabs } from "antd";
 import HotelPage from "../HotelPage/HotelPage";
 import FlightPage from "../FilghtPage/FlightPage";
 import TourPage from "../TourPage/TourPage";
-import RoomPage from "../RoomPage/Roompage";
+import RoomPage from "../RoomPage/RoomPage";
 
 const AllProductPage = () => {
   const nameHeader = [
