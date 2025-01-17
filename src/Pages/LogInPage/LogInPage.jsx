@@ -144,7 +144,7 @@ const LoginPage = () => {
             <img
               src={imgLogIn}
               alt="Login"
-              className="w-full h-full object-cover hidden md:block"
+              className=" object-cover hidden md:block"
             />
           </Col>
           <Col
