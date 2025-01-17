@@ -21,9 +21,10 @@ import DetailBookingHotelPage from "./Pages/AllBookingPage/DetailBookingHotelPag
 import DetailBookingTourPage from "./Pages/AllBookingPage/DetailBookingTourPage";
 import DetailBookingFlightPage from "./Pages/AllBookingPage/DetailBookingFlightPage";
 import AllPromotionPage from "./Pages/PromotionPage/AllPromotionPage";
-// import RoomPage from "./Pages/RoomPage/Roompage";
 import MonthlyRevenue from "./Pages/AnalyticsPage/MonthlyRevenue";
 import RoomPage from "./Pages/RoomPage/RoomPage";
+
+
 
 const Router = createBrowserRouter([
   {
