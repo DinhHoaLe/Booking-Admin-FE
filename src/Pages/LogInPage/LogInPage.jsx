@@ -16,11 +16,18 @@ import imgLogIn from "../../img/login.jpg";
 import imgLogo from "../../img/Logo.png";
 import imgEN from "../../img/EN.png";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
 const { Header, Content } = Layout;
 const { Title, Text } = Typography;
 
 const LoginPage = () => {
+  const accessToken = Cookies.get("accessToken");
+
+  console.log(accessToken);
+  const refreshToken = Cookies.get("refreshToken");
+
+  console.log(refreshToken);
   const navigate = useNavigate();
   const onFinish = async (values) => {
     try {
@@ -29,7 +36,7 @@ const LoginPage = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
+        // credentials: "include",
         body: JSON.stringify({
           email: values.email,
           password: values.password,

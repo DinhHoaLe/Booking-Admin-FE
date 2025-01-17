@@ -29,8 +29,11 @@ const AdminUI = () => {
   const dispatch = useDispatch();
 
   const accessToken = Cookies.get("accessToken");
+
+  console.log(accessToken);
   const refreshToken = Cookies.get("refreshToken");
 
+  console.log(refreshToken);
   useEffect(() => {
     if (refreshToken) {
       if (!accessToken) {
