@@ -19,7 +19,11 @@ import AnalyticsPage from "../AnalyticsPage/AnalyticsPage";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { useDispatch } from "react-redux";
-import { logout, refreshAccessToken } from "../../Redux/Slide/infoUserSlice";
+import {
+  fetchUserInfo,
+  logout,
+  refreshAccessToken,
+} from "../../Redux/Slide/infoUserSlice";
 import MonthlyRevenue from "../AnalyticsPage/MonthlyRevenue";
 
 const AdminUI = () => {
@@ -37,8 +41,10 @@ const AdminUI = () => {
   useEffect(() => {
     if (refreshToken) {
       if (!accessToken) {
+        console.log("check");
         dispatch(refreshAccessToken()).finally(() => setIsLoading(false));
       } else {
+        dispatch(fetchUserInfo());
         setToken(true);
         setIsLoading(false);
       }

@@ -12,10 +12,11 @@ function Header() {
   const dispatch = useDispatch();
 
   const { infor, status } = useSelector((state) => state.inforUser);
-
+  console.log(status);
   const searchInput = (e) => {
     setSearch(e.target.value);
   };
+  
   useEffect(() => {
     if (status === "idle") {
       dispatch(fetchUserInfo());

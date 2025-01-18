@@ -43,6 +43,8 @@ export const fetchUserInfo = createAsyncThunk(
       // const token = Cookies.get("accessToken");
       const token = localStorage.getItem("accessToken");
 
+      console.log(token);
+
       if (token) {
         return jwtDecode(token);
       }
