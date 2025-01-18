@@ -7,7 +7,8 @@ export const refreshAccessToken = createAsyncThunk(
   "user/refreshToken",
   async (_, { rejectWithValue }) => {
     try {
-      const refreshToken = Cookies.get("refreshToken");
+      // const refreshToken = Cookies.get("refreshToken");
+      const refreshToken = localStorage.getItem("refreshToken");
 
       if (!refreshToken) {
         throw new Error("No refresh token available");
@@ -28,12 +29,13 @@ export const refreshAccessToken = createAsyncThunk(
   }
 );
 
-
 export const fetchUserInfo = createAsyncThunk(
   "user/getInfo",
   async (_, { rejectWithValue }) => {
     try {
-      const token = Cookies.get("accessToken");
+      // const token = Cookies.get("accessToken");
+      const token = localStorage.getItem("accessToken");
+
       if (token) {
         return jwtDecode(token);
       }

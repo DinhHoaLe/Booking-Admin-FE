@@ -29,36 +29,39 @@ const AdminUI = () => {
   const dispatch = useDispatch();
 
   // const accessToken = Cookies.get("accessToken");
-
-  // console.log(accessToken);
   // const refreshToken = Cookies.get("refreshToken");
 
-  // console.log(refreshToken);
-  // useEffect(() => {
-  //   if (refreshToken) {
-  //     if (!accessToken) {
-  //       dispatch(refreshAccessToken()).finally(() => setIsLoading(false));
-  //     } else {
-  //       setToken(true);
-  //       setIsLoading(false);
-  //     }
-  //   } else {
-  //     setToken(false);
-  //     dispatch(logout());
-  //     navigate("/");
-  //     setIsLoading(false);
-  //   }
-  // }, [dispatch, accessToken, refreshToken, navigate]);
+  const accessToken = localStorage.getItem("accessToken");
+  const refreshToken = localStorage.getItem("refreshToken");
+  // const refreshToken = Cookies.get("refreshToken");
 
-  // if (isLoading) {
-  //   return (
-  //     <div className="h-screen flex items-center justify-center">
-  //       Loading...
-  //     </div>
-  //   );
-  // }
-  // token ?
-  return  (
+  console.log(accessToken);
+  console.log(refreshToken);
+  useEffect(() => {
+    if (refreshToken) {
+      if (!accessToken) {
+        dispatch(refreshAccessToken()).finally(() => setIsLoading(false));
+      } else {
+        setToken(true);
+        setIsLoading(false);
+      }
+    } else {
+      setToken(false);
+      dispatch(logout());
+      navigate("/");
+      setIsLoading(false);
+    }
+  }, [dispatch, accessToken, refreshToken, navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
+
+  return token ? (
     <div className="h-screen flex w-full">
       <Sidebar />
       <div className="flex flex-col w-full overflow-auto">
@@ -96,8 +99,8 @@ const AdminUI = () => {
         </div>
       </div>
     </div>
-  // ) : (
-  //   <div>You do not have access. Please log in!</div>
+  ) : (
+    <div>You do not have access. Please log in!</div>
   );
 };
 
