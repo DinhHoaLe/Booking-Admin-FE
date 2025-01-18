@@ -23,11 +23,10 @@ const { Title, Text } = Typography;
 
 const LoginPage = () => {
   const accessToken = Cookies.get("accessToken");
-
-  console.log(accessToken);
   const refreshToken = Cookies.get("refreshToken");
-
+  console.log(accessToken);
   console.log(refreshToken);
+
   const navigate = useNavigate();
   const onFinish = async (values) => {
     try {
@@ -69,6 +68,8 @@ const LoginPage = () => {
           });
         }
       } else if (req1.status === 200) {
+        localStorage.setItem("accessToken", res1.data.accessToken);
+        localStorage.setItem("refreshToken", res1.data.refreshToken);
         toast.success(res1.message, {
           position: "top-center",
           autoClose: 1000,
