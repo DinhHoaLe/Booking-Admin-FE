@@ -33,10 +33,7 @@ const AdminUI = () => {
 
   const accessToken = localStorage.getItem("accessToken");
   const refreshToken = localStorage.getItem("refreshToken");
-  // const refreshToken = Cookies.get("refreshToken");
 
-  console.log(accessToken);
-  console.log(refreshToken);
   useEffect(() => {
     if (refreshToken) {
       if (!accessToken) {

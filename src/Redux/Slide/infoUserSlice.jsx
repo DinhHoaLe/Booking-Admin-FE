@@ -16,7 +16,14 @@ export const refreshAccessToken = createAsyncThunk(
 
       const response = await fetch(
         `${import.meta.env.VITE_URL_API}/refresh-token-admin`,
-        { method: "GET", credentials: "include" }
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${refreshToken}`, // Gửi token qua header
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
       );
 
       const { accessToken } = await response.json();
@@ -49,7 +56,7 @@ export const fetchUserInfo = createAsyncThunk(
 
 const initialState = {
   infor: null,
-  isAuthenticated: !!Cookies.get("accessToken"),
+  isAuthenticated: !!localStorage.getItem("accessToken"),
   status: "idle",
   error: null,
 };
@@ -60,8 +67,8 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     logout: (state) => {
-      Cookies.remove("accessToken");
-      Cookies.remove("refreshToken");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
       state.infor = null;
       state.isAuthenticated = false;
       state.status = "idle";
