@@ -57,8 +57,8 @@ const AdminUI = () => {
       </div>
     );
   }
-
-  return token ? (
+  // tokne ?
+  return (
     <div className="h-screen flex w-full">
       <Sidebar />
       <div className="flex flex-col w-full overflow-auto">
@@ -96,8 +96,8 @@ const AdminUI = () => {
         </div>
       </div>
     </div>
-  ) : (
-    <div>You do not have access. Please log in!</div>
+    // ) : (
+    //   <div>You do not have access. Please log in!</div>
   );
 };
 
