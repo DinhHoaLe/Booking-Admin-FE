@@ -34,29 +34,29 @@ const AdminUI = () => {
   const refreshToken = Cookies.get("refreshToken");
 
   console.log(refreshToken);
-  useEffect(() => {
-    if (refreshToken) {
-      if (!accessToken) {
-        dispatch(refreshAccessToken()).finally(() => setIsLoading(false));
-      } else {
-        setToken(true);
-        setIsLoading(false);
-      }
-    } else {
-      setToken(false);
-      dispatch(logout());
-      navigate("/");
-      setIsLoading(false);
-    }
-  }, [dispatch, accessToken, refreshToken, navigate]);
+  // useEffect(() => {
+  //   if (refreshToken) {
+  //     if (!accessToken) {
+  //       dispatch(refreshAccessToken()).finally(() => setIsLoading(false));
+  //     } else {
+  //       setToken(true);
+  //       setIsLoading(false);
+  //     }
+  //   } else {
+  //     setToken(false);
+  //     dispatch(logout());
+  //     navigate("/");
+  //     setIsLoading(false);
+  //   }
+  // }, [dispatch, accessToken, refreshToken, navigate]);
 
-  if (isLoading) {
-    return (
-      <div className="h-screen flex items-center justify-center">
-        Loading...
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className="h-screen flex items-center justify-center">
+  //       Loading...
+  //     </div>
+  //   );
+  // }
   // tokne ?
   return (
     <div className="h-screen flex w-full">
