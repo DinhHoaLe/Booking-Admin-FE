@@ -20,6 +20,8 @@ import {
   CalendarOutlined,
   CustomerServiceOutlined,
 } from "@ant-design/icons";
+import { useDispatch } from "react-redux";
+import { logout } from "../../Redux/Slide/infoUserSlice";
 
 const items = [
   {
@@ -56,6 +58,7 @@ const items = [
 
 function Sidebar() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 640);
 
@@ -68,8 +71,9 @@ function Sidebar() {
   };
 
   const handleLogout = () => {
-    Cookies.remove("accessToken", { path: "/" });
-    Cookies.remove("refreshToken", { path: "/" });
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    dispatch(logout());
     navigate("/");
   };
 

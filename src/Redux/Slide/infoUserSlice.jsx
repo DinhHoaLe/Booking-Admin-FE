@@ -19,7 +19,7 @@ export const refreshAccessToken = createAsyncThunk(
         {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${refreshToken}`, // Gửi token qua header
+            Authorization: `Bearer ${refreshToken}`,
             "Content-Type": "application/json",
           },
           credentials: "include",
