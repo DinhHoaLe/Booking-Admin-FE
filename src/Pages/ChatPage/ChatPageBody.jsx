@@ -56,7 +56,7 @@ export default function ChatPageBody({ dataName }) {
     push(messagesRef, {
       text: message.text,
       timestamp: new Date().toISOString(),
-      sender: infor?.email,
+      sender: "admin",
     });
   };
 
@@ -67,7 +67,7 @@ export default function ChatPageBody({ dataName }) {
       <PaperStyled elevation={2}>
         <MessagesBody>
           {messages.map((msg, index) =>
-            msg.sender === infor?.email ? (
+            msg.sender === "admin" ? (
               <MessageRight
                 key={index}
                 message={msg.text}
