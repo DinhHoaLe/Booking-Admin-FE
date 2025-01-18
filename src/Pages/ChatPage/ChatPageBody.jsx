@@ -38,7 +38,7 @@ export default function ChatPageBody({ dataName }) {
   const [messages, setMessages] = useState([]);
   const [currentAdmin, setCurrentAdmin] = useState();
 
-  const { infor } = useSelector((state) => state.inforUser);
+  const { infor } = useSelector((state) => state?.inforUser);
 
   useEffect(() => {
     if (dataName) {
@@ -56,18 +56,18 @@ export default function ChatPageBody({ dataName }) {
     push(messagesRef, {
       text: message.text,
       timestamp: new Date().toISOString(),
-      sender: infor.email,
+      sender: infor?.email,
     });
   };
 
-  console.log(infor.email);
+  console.log(infor?.email);
 
   return (
     <Container>
       <PaperStyled elevation={2}>
         <MessagesBody>
           {messages.map((msg, index) =>
-            msg.sender === infor.email ? (
+            msg.sender === infor?.email ? (
               <MessageRight
                 key={index}
                 message={msg.text}
