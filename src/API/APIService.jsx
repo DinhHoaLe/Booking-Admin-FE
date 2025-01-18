@@ -1,5 +1,5 @@
 // const BASE_URL = "http://localhost:3000/api/v1"; // URL local của API
-const BASE_URL = "http://https://booking-be-z8l2.onrender.com/api/v1"; // URL của API
+const BASE_URL = "https://booking-be-z8l2.onrender.com/api/v1"; // URL của API
 const accessToken = localStorage.getItem("accessToken");
 const refreshToken = localStorage.getItem("refreshToken");
 
